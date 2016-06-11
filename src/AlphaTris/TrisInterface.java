@@ -64,7 +64,7 @@ public class TrisInterface
             beam = 10;
             depth = 6;
         }
-        if(size > 10 && size < 25)
+        else if(size > 10 && size < 25)
         {
             beam = 12;
             depth = 4;
