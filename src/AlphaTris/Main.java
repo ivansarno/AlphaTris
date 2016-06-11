@@ -1,4 +1,4 @@
-package ivansarno;
+package AlphaTris;
 
 public class Main {
 
