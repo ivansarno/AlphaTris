@@ -58,20 +58,19 @@ public class TrisInterface
 
     static Function<TrisState,TrisState> getEngine(int size, int serie, TrisState t)
     {
-        int beam;
         if(size <= 10)
         {
-            beam = 10;
+            TrisState.limit = 10;
             depth = 6;
         }
         else if(size > 10 && size < 25)
         {
-            beam = 12;
+            TrisState.limit = 12;
             depth = 4;
         }
         else
         {
-            beam = 20;
+            TrisState.limit = 20;
             depth = 2;
         }
         Engine ab = new Engine();

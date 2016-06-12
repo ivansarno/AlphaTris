@@ -4,6 +4,7 @@ import com.google.common.collect.MinMaxPriorityQueue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.PriorityQueue;
 
 /**
  * Created by ivan on 18/05/2016.
@@ -17,6 +18,7 @@ public class TrisState
     protected double result;
     public static long generated = 0;
     protected double hval;
+    protected static int limit = 10;
 
     public TrisState(byte[][] state, int serie, int size)
     {
@@ -207,7 +209,7 @@ public class TrisState
         return n;
     }
 
-    protected static double f(int val)
+    protected static double weight(int val)
     {
         if(val>0)
             return Math.pow(val, 2);
@@ -253,7 +255,7 @@ public class TrisState
                 if (current != state[i][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += f(acc);
+                        val += weight(acc);
                     current = state[i][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -261,7 +263,7 @@ public class TrisState
                 }
             }
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += f(acc);
+                val += weight(acc);
         }
 
 
@@ -307,7 +309,7 @@ public class TrisState
                 if (current != state[i][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += f(acc);
+                        val += weight(acc);
                     current = state[i][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -315,7 +317,7 @@ public class TrisState
                 }
             }
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += f(acc);
+                val += weight(acc);
         }
 
 
@@ -363,7 +365,7 @@ public class TrisState
                 if (current != state[h][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += f(acc);
+                        val += weight(acc);
                     current = state[h][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -372,7 +374,7 @@ public class TrisState
             }
             //System.out.println();
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += f(acc);
+                val += weight(acc);
         }
         //System.out.println();
         for (int i = 1; i <= size-serie; i++)
@@ -411,7 +413,7 @@ public class TrisState
                 if (current != state[h][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += f(acc);
+                        val += weight(acc);
                     current = state[h][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -420,7 +422,7 @@ public class TrisState
             }
             //System.out.println();
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += f(acc);
+                val += weight(acc);
         }
 
         //System.out.println();
@@ -468,7 +470,7 @@ public class TrisState
                 if (current != state[h][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += f(acc);
+                        val += weight(acc);
                     current = state[h][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -477,7 +479,7 @@ public class TrisState
             }
             //System.out.println();
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += f(acc);
+                val += weight(acc);
         }
         //System.out.println();
         for (int i = 1; i <= size-serie; i++)
@@ -516,7 +518,7 @@ public class TrisState
                 if (current != state[h][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += f(acc);
+                        val += weight(acc);
                     current = state[h][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -525,7 +527,7 @@ public class TrisState
             }
             //System.out.println();
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += f(acc);
+                val += weight(acc);
         }
 
         //System.out.println();
@@ -534,7 +536,7 @@ public class TrisState
 
     public ArrayList<TrisState> successorsMax()
     {
-        MinMaxPriorityQueue<TrisState> queue = MinMaxPriorityQueue.orderedBy(TrisState::comparatorMax).maximumSize(10).create();
+        PriorityQueue<TrisState> queue = new PriorityQueue<>(limit, TrisState::comparatorMin);
         ArrayList<TrisState> successors = new ArrayList<>();
         TrisState current = new TrisState(arrayCopy(state), serie, size);
         for(int i=0; i< size; i++)
@@ -543,18 +545,19 @@ public class TrisState
                 if (state[i][j] == 0)
                 {
                     current.state[i][j] = 1;
-                    if(queue.size() < 10)
+                    if(queue.size() < limit)
                     {
                         queue.add(current);
                         current = new TrisState(arrayCopy(state), serie, size);
                         continue;
                     }
-                    if(comparatorMax(current, queue.peekLast()) == 1)
+                    if(comparatorMax(current, queue.peek()) == 1)
                         current.state[i][j] = 0;
                     else
                     {
                         queue.add(current);
-                        current = new TrisState(arrayCopy(state), serie, size);
+                        current = queue.poll();
+                        current.trisReset(this);
                     }
 
                 }
@@ -566,7 +569,7 @@ public class TrisState
 
     public  ArrayList<TrisState> successorsMin()
     {
-        MinMaxPriorityQueue<TrisState> queue = MinMaxPriorityQueue.orderedBy(TrisState::comparatorMin).maximumSize(10).create();
+        PriorityQueue<TrisState> queue = new PriorityQueue<>(limit, TrisState::comparatorMax);
         ArrayList<TrisState> successors = new ArrayList<>();
         TrisState current = new TrisState(arrayCopy(state), serie, size);
         for(int i=0; i< size; i++)
@@ -575,18 +578,19 @@ public class TrisState
                 if (state[i][j] == 0)
                 {
                     current.state[i][j] = -1;
-                    if(queue.size() < 10)
+                    if(queue.size() < limit)
                     {
                         queue.add(current);
                         current = new TrisState(arrayCopy(state), serie, size);
                         continue;
                     }
-                    if(comparatorMin(current, queue.peekLast()) == 1)
+                    if(comparatorMin(current, queue.peek()) == 1)
                         current.state[i][j] = 0;
                     else
                     {
                         queue.add(current);
-                        current = new TrisState(arrayCopy(state), serie, size);
+                        current = queue.poll();
+                        current.trisReset(this);
                     }
 
                 }
@@ -604,4 +608,20 @@ public class TrisState
         return Double.compare(b.heuristic(), a.heuristic());
     }
 
+    protected static void arrayOverwrite(byte[][] destination, byte[][] source)
+    {
+        for(int i = 0; i < source.length; i++)
+            for(int j = 0; j < source.length; j++)
+                destination[i][j] = source[i][j];
+    }
+    protected void trisReset(TrisState source)
+    {
+        arrayOverwrite(this.state, source.state);
+        result = 0.0;
+        hval = Double.NaN;
+    }
+
 }
+
+
+
