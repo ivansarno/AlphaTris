@@ -1,10 +1,6 @@
 package AlphaTris;
 
-import com.google.common.collect.MinMaxPriorityQueue;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.PriorityQueue;
 
 /**
  * Created by ivan on 18/05/2016.
@@ -15,19 +11,17 @@ public class TrisState
     public final byte[][] state;
     protected final int serie;
     protected final int size;
-    protected double result;
-    public static long generated = 0;
-    protected double hval;
-    protected static int limit = 10;
+    protected double value;
+    protected double heuristicValue;
+
 
     public TrisState(byte[][] state, int serie, int size)
     {
         this.state = state;
         this.serie = serie;
         this.size = size;
-        generated ++;
-        hval = Double.NaN;
-        result = 0;
+        heuristicValue = Double.NaN;
+        value = 0;
     }
 
     public TrisState(int serie, int size)
@@ -40,9 +34,8 @@ public class TrisState
             for (int j = 0; j < size; j++)
                 state[i][j] = 0;
         }
-        result = 0;
-        generated++;
-        hval = Double.NaN;
+        value = 0;
+        heuristicValue = Double.NaN;
     }
 
 
@@ -83,7 +76,7 @@ public class TrisState
 
     public double eval()
     {
-        return result;
+        return value;
     }
 
 
@@ -98,8 +91,8 @@ public class TrisState
                 if(checkSequence(i,j))
                 {
                     if(state[i][j] == -1)
-                        result = minVal();
-                    else result = maxVal();
+                        value = minVal();
+                    else value = maxVal();
                     return true;
                 }
                 if(state[i][j] == 0)
@@ -114,13 +107,13 @@ public class TrisState
 
     public double heuristic()
     {
-        if(Double.isNaN(hval))
+        if(Double.isNaN(heuristicValue))
         {
             if(this.isTerminal())
-                hval = result;
-            else hval = checkColonne() + checkRighe() + checkDiagonaleDX() + checkDiagonaleSX();
+                heuristicValue = value;
+            else heuristicValue = columnsValue() + rowsValue() + diagonalsDXValue() + diagonalsSXValue();
         }
-        return hval;
+        return heuristicValue;
     }
 
 
@@ -216,7 +209,7 @@ public class TrisState
         return -Math.pow(val, 4);
     }
 
-    protected double checkColonne()
+    protected double columnsValue()
     {
         int current, acc, zeroPrima, zeroDopo;
         double val = 0;
@@ -270,7 +263,7 @@ public class TrisState
         return val;
     }
 
-    protected double checkRighe()
+    protected double rowsValue()
     {
         int current, acc, zeroPrima, zeroDopo;
         double val = 0;
@@ -324,11 +317,11 @@ public class TrisState
         return val;
     }
 
-    protected double checkDiagonaleSX()
+    protected double diagonalsSXValue()
     {
         int current, acc, zeroPrima, zeroDopo;
         double val = 0;
-        //System.out.println();
+
         for (int i = size-1; i >= serie-1; i--)
         {
             zeroPrima = 0;
@@ -338,7 +331,7 @@ public class TrisState
             int j,h;
             for (j = 0, h = i; h >= 0; j++, h--)
             {
-                //System.out.println(state[h][j]);
+
                 if (current == 0 && state[h][j] == 0)
                 {
                     current = state[h][j];
@@ -372,11 +365,11 @@ public class TrisState
                     zeroDopo = 0;
                 }
             }
-            //System.out.println();
+
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
                 val += weight(acc);
         }
-        //System.out.println();
+
         for (int i = 1; i <= size-serie; i++)
         {
             zeroPrima = 0;
@@ -386,7 +379,7 @@ public class TrisState
             int j,h;
             for (j = i, h = size-1; j < size && h >= 0; j++, h--)
             {
-                //System.out.println(state[h][j]);
+
                 if (current == 0 && state[h][j] == 0)
                 {
                     current = state[h][j];
@@ -420,20 +413,20 @@ public class TrisState
                     zeroDopo = 0;
                 }
             }
-            //System.out.println();
+
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
                 val += weight(acc);
         }
 
-        //System.out.println();
+
         return val;
     }
 
-    protected double checkDiagonaleDX()
+    protected double diagonalsDXValue()
     {
         int current, acc, zeroPrima, zeroDopo;
         double val = 0;
-        //System.out.println();
+
         for (int i = 0; i <= size-serie; i++)
         {
             zeroPrima = 0;
@@ -443,7 +436,7 @@ public class TrisState
             int j,h;
             for (j = 0, h = i; j < size && h< size; j++, h++)
             {
-                //System.out.println(state[h][j]);
+
                 if (current == 0 && state[h][j] == 0)
                 {
                     current = state[h][j];
@@ -477,11 +470,11 @@ public class TrisState
                     zeroDopo = 0;
                 }
             }
-            //System.out.println();
+
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
                 val += weight(acc);
         }
-        //System.out.println();
+
         for (int i = 1; i <= size-serie; i++)
         {
             zeroPrima = 0;
@@ -525,79 +518,15 @@ public class TrisState
                     zeroDopo = 0;
                 }
             }
-            //System.out.println();
+
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
                 val += weight(acc);
         }
 
-        //System.out.println();
+
         return val;
     }
 
-    public ArrayList<TrisState> successorsMax()
-    {
-        PriorityQueue<TrisState> queue = new PriorityQueue<>(limit, TrisState::comparatorMin);
-        ArrayList<TrisState> successors = new ArrayList<>();
-        TrisState current = new TrisState(arrayCopy(state), serie, size);
-        for(int i=0; i< size; i++)
-            for (int j = 0; j < size; j++)
-            {
-                if (state[i][j] == 0)
-                {
-                    current.state[i][j] = 1;
-                    if(queue.size() < limit)
-                    {
-                        queue.add(current);
-                        current = new TrisState(arrayCopy(state), serie, size);
-                        continue;
-                    }
-                    if(comparatorMax(current, queue.peek()) == 1)
-                        current.state[i][j] = 0;
-                    else
-                    {
-                        queue.add(current);
-                        current = queue.poll();
-                        current.trisReset(this);
-                    }
-
-                }
-            }
-        successors.addAll(queue);
-        return successors;
-    }
-
-
-    public  ArrayList<TrisState> successorsMin()
-    {
-        PriorityQueue<TrisState> queue = new PriorityQueue<>(limit, TrisState::comparatorMax);
-        ArrayList<TrisState> successors = new ArrayList<>();
-        TrisState current = new TrisState(arrayCopy(state), serie, size);
-        for(int i=0; i< size; i++)
-            for (int j = 0; j < size; j++)
-            {
-                if (state[i][j] == 0)
-                {
-                    current.state[i][j] = -1;
-                    if(queue.size() < limit)
-                    {
-                        queue.add(current);
-                        current = new TrisState(arrayCopy(state), serie, size);
-                        continue;
-                    }
-                    if(comparatorMin(current, queue.peek()) == 1)
-                        current.state[i][j] = 0;
-                    else
-                    {
-                        queue.add(current);
-                        current = queue.poll();
-                        current.trisReset(this);
-                    }
-
-                }
-            }
-        successors.addAll(queue);
-        return successors;
-    }
 
     protected static int comparatorMin(TrisState a, TrisState b)
     {
@@ -614,11 +543,26 @@ public class TrisState
             for(int j = 0; j < source.length; j++)
                 destination[i][j] = source[i][j];
     }
+    protected void trisReset()
+    {
+        setZero(state);
+        value = 0.0;
+        heuristicValue = Double.NaN;
+    }
+
+    static void setZero(byte[][] a)
+    {
+        for(int i=0; i< a.length; i++)
+            for(int j=0; j<a.length; j++)
+            {
+                a[i][j] = 0;
+            }
+    }
     protected void trisReset(TrisState source)
     {
         arrayOverwrite(this.state, source.state);
-        result = 0.0;
-        hval = Double.NaN;
+        value = 0.0;
+        heuristicValue = Double.NaN;
     }
 
 }

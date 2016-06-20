@@ -5,15 +5,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by ivan on 11/06/2016.
+ *
  */
-public class Engine
+public class SimpleEngine implements IEngine
 {
     protected double upper;
     protected double lower;
     protected boolean termination;
     protected ConcurrentHashMap<TrisState, Double> explored;
 
-    public Engine()
+    public SimpleEngine()
     {
         explored = new ConcurrentHashMap<>();
     }

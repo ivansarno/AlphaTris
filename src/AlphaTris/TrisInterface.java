@@ -36,14 +36,14 @@ public class TrisInterface
             x = in.nextInt();
             y = in.nextInt();
             t.state[x][y] = -1;
-            TrisState.generated = 0;
+            TrisState.generated.set(0);
             long time = System.currentTimeMillis();
             t = engine.apply(t);
             time = System.currentTimeMillis()- time;
             System.out.println();
             System.out.println("tempo elaborazione mossa: " + time + "ms");
             System.out.println("profondità esplorazione: " + depth);
-            System.out.println("nodi generati: " + TrisState.generated);
+            System.out.println("nodi generati: " + TrisState.generated.get());
             System.out.println();
             System.out.println(t);
         }
@@ -58,22 +58,23 @@ public class TrisInterface
 
     static Function<TrisState,TrisState> getEngine(int size, int serie, TrisState t)
     {
+        int maxElements;
         if(size <= 10)
         {
-            TrisState.limit = 10;
+            maxElements = 10;
             depth = 6;
         }
         else if(size > 10 && size < 25)
         {
-            TrisState.limit = 12;
+            maxElements = 12;
             depth = 4;
         }
         else
         {
-            TrisState.limit = 20;
+            maxElements = 20;
             depth = 2;
         }
-        Engine ab = new Engine();
+        IEngine ab = new IntensivePoolEngine(serie, size, maxElements);
         return (x -> ab.parallelNextState(x, depth));
     }
 
