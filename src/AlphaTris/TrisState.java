@@ -9,25 +9,23 @@ import java.util.Arrays;
 public class TrisState
 {
     public final byte[][] state;
-    protected final int serie;
-    protected final int size;
+    protected static int serie;
+    protected static int size;
     protected double value;
     protected double heuristicValue;
+    protected static double maxValue;
+    protected static double minValue;
 
 
-    public TrisState(byte[][] state, int serie, int size)
+    public TrisState(byte[][] state)
     {
         this.state = state;
-        this.serie = serie;
-        this.size = size;
         heuristicValue = Double.NaN;
         value = 0;
     }
 
-    public TrisState(int serie, int size)
+    public TrisState()
     {
-        this.serie = serie;
-        this.size = size;
         state = new byte[size][size];
         for (int i = 0; i < size; i++)
         {
@@ -38,6 +36,20 @@ public class TrisState
         heuristicValue = Double.NaN;
     }
 
+    public TrisState(TrisState source)
+    {
+        this.state = arrayCopy(source.state);
+        heuristicValue = Double.NaN;
+        value = 0;
+    }
+
+    public static void init(int serie, int size)
+    {
+        TrisState.serie = serie;
+        TrisState.size = size;
+        maxValue = Math.pow(size,4)* size * 10;
+        minValue = -maxValue;
+    }
 
     @Override
     public String toString()
@@ -91,8 +103,8 @@ public class TrisState
                 if(checkSequence(i,j))
                 {
                     if(state[i][j] == -1)
-                        value = minVal();
-                    else value = maxVal();
+                        value = minValue;
+                    else value = maxValue;
                     return true;
                 }
                 if(state[i][j] == 0)
@@ -114,17 +126,6 @@ public class TrisState
             else heuristicValue = columnsValue() + rowsValue() + diagonalsDXValue() + diagonalsSXValue();
         }
         return heuristicValue;
-    }
-
-
-    public double maxVal()
-    {
-        return Math.pow(size,4)* size * 10;
-    }
-
-    public double minVal()
-    {
-        return -maxVal();
     }
 
 
@@ -543,7 +544,7 @@ public class TrisState
             for(int j = 0; j < source.length; j++)
                 destination[i][j] = source[i][j];
     }
-    protected void trisReset()
+    protected void reset()
     {
         setZero(state);
         value = 0.0;
@@ -558,7 +559,7 @@ public class TrisState
                 a[i][j] = 0;
             }
     }
-    protected void trisReset(TrisState source)
+    protected void reset(TrisState source)
     {
         arrayOverwrite(this.state, source.state);
         value = 0.0;

@@ -1,15 +1,14 @@
 package AlphaTris;
 
 import java.util.Scanner;
-import java.util.function.Function;
+
 
 /**
  * Created by ivan on 11/06/2016.
+ *
  */
 public class TrisInterface
 {
-    static int depth;
-
     public static void main(String[] args)
     {
         System.out.println("Inserire 2 numeri, la dimensione della griglia e la lunghezza della serie");
@@ -17,7 +16,7 @@ public class TrisInterface
         Scanner in = new Scanner(System.in);
         size = in.nextInt();
         serie = in.nextInt();
-
+        TrisState.init(serie, size);
         System.out.println("Tu sei X");
         game(size, serie);
 
@@ -25,9 +24,9 @@ public class TrisInterface
 
     static void game(int size, int serie)
     {
-        TrisState t = new TrisState(serie, size);
+        TrisState t = new TrisState();
         System.out.println(t);
-        Function<TrisState, TrisState> engine = getEngine(size, serie, t);
+        IEngine engine = getEngine(size, serie, t);
         Scanner in = new Scanner(System.in);
         int x,y;
         while (!t.isTerminal())
@@ -36,15 +35,14 @@ public class TrisInterface
             x = in.nextInt();
             y = in.nextInt();
             t.state[x][y] = -1;
-            TrisState.generated.set(0);
             long time = System.currentTimeMillis();
-            t = engine.apply(t);
+            t = engine.nextState(t);
             time = System.currentTimeMillis()- time;
             System.out.println();
-            System.out.println("tempo elaborazione mossa: " + time + "ms");
+            /*System.out.println("tempo elaborazione mossa: " + time + "ms");
             System.out.println("profondità esplorazione: " + depth);
             System.out.println("nodi generati: " + TrisState.generated.get());
-            System.out.println();
+            System.out.println();*/
             System.out.println(t);
         }
         if(t.eval() == 0)
@@ -56,9 +54,10 @@ public class TrisInterface
 
     }
 
-    static Function<TrisState,TrisState> getEngine(int size, int serie, TrisState t)
+    static IEngine getEngine(int size, int serie, TrisState t)
     {
         int maxElements;
+        int depth;
         if(size <= 10)
         {
             maxElements = 10;
@@ -74,8 +73,7 @@ public class TrisInterface
             maxElements = 20;
             depth = 2;
         }
-        IEngine ab = new IntensivePoolEngine(serie, size, maxElements);
-        return (x -> ab.parallelNextState(x, depth));
+        return new SoftPoolEngine(maxElements, depth);
     }
 
 }

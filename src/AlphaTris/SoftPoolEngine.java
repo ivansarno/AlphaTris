@@ -7,56 +7,46 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by ivan on 14/06/2016.
+ *
  */
-public class SoftPoolEngine implements IEngine
+public class SoftPoolEngine implements  IEngine
 {
-    protected double upper;
-    protected double lower;
     protected boolean termination;
     protected ConcurrentHashMap<TrisState, Double> explored;
     protected TrisPool pool;
     protected int maxElements;
+    protected int depth;
     protected final AtomicInteger resets = new AtomicInteger();
 
-    public SoftPoolEngine(int serie, int size, int maxElements)
+    public SoftPoolEngine(int maxElements, int depth)
     {
         explored = new ConcurrentHashMap<>();
-        pool = new TrisPool(size, serie);
+        pool = new TrisPool();
         this.maxElements =maxElements;
+        this.depth = depth;
     }
 
-    public TrisState parallelNextState(TrisState current, int depth)
+    public TrisState nextState(TrisState current)
     {
         if(current.isTerminal())
             return current;
 
 
-        upper = current.maxVal();
-        lower = current.minVal();
         termination = false;
 
         ArrayList<TrisState> successors = successorsMax(current);
         current = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth)))
                 .max(StateWrap::compareTo).get().state;
 
-        //pool.disposeAll(successors);
-        //pool.disposeAll(explored.keys());
 
-        System.out.println("nodi explored " + explored.size());
-        explored.clear();
-        System.out.println("nodi nella pool: " + pool.pool.size());
-        System.out.println("nodi richiesti " + pool.requests.intValue());
-        System.out.println("nodi allocati: " + pool.allocations.intValue());
-        System.out.println("nodi resettati " + resets.intValue());
         pool.allocations.set(0);
         pool.requests.set(0);
-
-        ((TrickPool) pool).refresh();
+        pool.refresh();
         return pool.getCopy(current);
     }
 
 
-    protected double parallelMin(TrisState state, double alpha, double beta, int depth)
+    protected double evalMin(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
             throw new ABT();
@@ -86,13 +76,12 @@ public class SoftPoolEngine implements IEngine
         double current = Double.POSITIVE_INFINITY;
         ArrayList<TrisState> successors = successorsMin(state);
 
-        //try
         {
 
             for (TrisState s: successors)
             {
 
-                current = Math.min(parallelMax(s, alpha, beta, depth-1), current);
+                current = Math.min(evalMax(s, alpha, beta, depth-1), current);
                 if(current <= alpha)
                 {
 
@@ -102,7 +91,7 @@ public class SoftPoolEngine implements IEngine
                 beta = Math.min(current, beta);
 
 
-                if(beta == lower)
+                if(beta == TrisState.minValue)
                     break;
 
             }
@@ -115,7 +104,7 @@ public class SoftPoolEngine implements IEngine
     }
 
 
-    protected double parallelMax(TrisState state, double alpha, double beta, int depth)
+    protected double evalMax(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
             throw new ABT();
@@ -150,13 +139,13 @@ public class SoftPoolEngine implements IEngine
             for (TrisState s : successors)
             {
 
-                current = Math.max(parallelMin(s, alpha, beta, depth-1), current);
+                current = Math.max(evalMin(s, alpha, beta, depth-1), current);
                 if(current >= beta)
                     break;
                 alpha = Math.max(alpha, current);
 
 
-                if(alpha == upper)
+                if(alpha == TrisState.maxValue)
                     break;
 
             }
@@ -175,8 +164,8 @@ public class SoftPoolEngine implements IEngine
 
         try
         {
-            double val = parallelMin(state, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, depth - 1);
-            if (val == upper)
+            double val = evalMin(state, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, depth - 1);
+            if (val == TrisState.maxValue)
                 termination = true;
             return val;
         } catch (ABT e)
@@ -193,8 +182,8 @@ public class SoftPoolEngine implements IEngine
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMax);
         ArrayList<TrisState> successors = new ArrayList<>();
         TrisState temp = pool.getCopy(current);
-        for(int i=0; i< current.size; i++)
-            for (int j = 0; j < current.size; j++)
+        for(int i = 0; i< TrisState.size; i++)
+            for (int j = 0; j < TrisState.size; j++)
             {
                 if (current.state[i][j] == 0)
                 {
@@ -211,7 +200,7 @@ public class SoftPoolEngine implements IEngine
                     {
                         queue.add(temp);
                         temp = queue.poll();
-                        temp.trisReset(current);
+                        temp.reset(current);
                         resets.incrementAndGet();
                     }
 
@@ -227,8 +216,8 @@ public class SoftPoolEngine implements IEngine
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMin);
         ArrayList<TrisState> successors = new ArrayList<>();
         TrisState temp = pool.getCopy(current);
-        for(int i=0; i< current.size; i++)
-            for (int j = 0; j < current.size; j++)
+        for(int i = 0; i< TrisState.size; i++)
+            for (int j = 0; j < TrisState.size; j++)
             {
                 if (current.state[i][j] == 0)
                 {
@@ -245,7 +234,7 @@ public class SoftPoolEngine implements IEngine
                     {
                         queue.add(temp);
                         temp = queue.poll();
-                        temp.trisReset(current);
+                        temp.reset(current);
                         resets.incrementAndGet();
                     }
 

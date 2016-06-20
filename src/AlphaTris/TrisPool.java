@@ -1,10 +1,7 @@
 package AlphaTris;
 
 
-import java.util.Collection;
-import java.util.Deque;
-import java.util.Enumeration;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,17 +12,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TrisPool
 {
     protected Deque<TrisState> pool;
-    protected int size;
-    protected int serie;
+    List<TrisState> all;
     protected final AtomicInteger requests = new AtomicInteger();
     protected final AtomicInteger allocations = new AtomicInteger();
 
-    public TrisPool(int size, int serie)
+    public TrisPool()
     {
-        this.size = size;
-        this.serie = serie;
-        this.pool = new ConcurrentLinkedDeque<>();
+        pool = new ConcurrentLinkedDeque<>();
+        all = new Vector<>(1000);
     }
+
 
     public TrisState getNew()
     {
@@ -34,11 +30,14 @@ public class TrisPool
         if(t == null)
         {
             allocations.incrementAndGet();
-            return new TrisState(serie, size);
+            t = new TrisState();
+            all.add(t);
+            return t;
         }
-        t.trisReset();
+        t.reset();
         return t;
     }
+
     public TrisState getCopy(TrisState source)
     {
         requests.incrementAndGet();
@@ -46,10 +45,18 @@ public class TrisPool
         if(t == null)
         {
             allocations.incrementAndGet();
-            return new TrisState(TrisState.arrayCopy(source.state), serie, size);
+            t = new TrisState(source);
+            all.add(t);
+            return t;
         }
-        t.trisReset(source);
+        t.reset(source);
         return t;
+    }
+
+    public void refresh()
+    {
+        pool.clear();
+        pool.addAll(all);
     }
 
     public void dispose(TrisState s)

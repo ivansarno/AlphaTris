@@ -6,5 +6,5 @@ package AlphaTris;
  */
 public interface IEngine
 {
-     TrisState parallelNextState(TrisState current, int depth);
+     TrisState nextState(TrisState current);
 }

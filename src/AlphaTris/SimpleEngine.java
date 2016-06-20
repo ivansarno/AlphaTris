@@ -1,6 +1,7 @@
 package AlphaTris;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -9,24 +10,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SimpleEngine implements IEngine
 {
-    protected double upper;
-    protected double lower;
+    protected int maxElements;
+    protected int depth;
     protected boolean termination;
     protected ConcurrentHashMap<TrisState, Double> explored;
 
-    public SimpleEngine()
+    public SimpleEngine(int maxElements, int depth)
     {
+        this.maxElements = maxElements;
+        this.depth = depth;
         explored = new ConcurrentHashMap<>();
     }
 
-    public TrisState parallelNextState(TrisState current, int depth)
+    public TrisState nextState(TrisState current)
     {
         if(current.isTerminal())
             return current;
 
 
-        upper = current.maxVal();
-        lower = current.minVal();
         termination = false;
 
         current = successorsMax(current).parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth)))
@@ -64,7 +65,7 @@ public class SimpleEngine implements IEngine
             beta = Math.min(current, beta);
 
 
-            if(beta == lower)
+            if(beta == TrisState.minValue)
                 break;
 
         }
@@ -101,7 +102,7 @@ public class SimpleEngine implements IEngine
             alpha = Math.max(alpha, current);
 
 
-            if(alpha == upper)
+            if(alpha == TrisState.maxValue)
                 break;
 
         }
@@ -117,7 +118,7 @@ public class SimpleEngine implements IEngine
         try
         {
             double val = parallelMin(state, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, depth - 1);
-            if (val == upper)
+            if (val == TrisState.maxValue)
                 termination = true;
             return val;
         } catch (ABT e)
@@ -129,18 +130,70 @@ public class SimpleEngine implements IEngine
 
 
 
-    protected ArrayList<TrisState> successorsMin(TrisState state)
+    protected ArrayList<TrisState> successorsMin(TrisState current)
     {
-        ArrayList<TrisState> temp = state.successorsMin();
-        temp.sort(TrisState::comparatorMin);
-        return temp;
+        PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMax);
+        ArrayList<TrisState> successors = new ArrayList<>();
+        TrisState temp = new TrisState(current);
+        for(int i = 0; i< TrisState.size; i++)
+            for (int j = 0; j < TrisState.size; j++)
+            {
+                if (current.state[i][j] == 0)
+                {
+                    temp.state[i][j] = -1;
+                    if(queue.size() < maxElements)
+                    {
+                        queue.add(temp);
+                        temp = new TrisState(current);
+                        continue;
+                    }
+                    if(TrisState.comparatorMin(temp, queue.peek()) == 1)
+                        temp.state[i][j] = 0;
+                    else
+                    {
+                        queue.add(temp);
+                        temp = queue.poll();
+                        temp.reset(current);
+                    }
+
+                }
+            }
+        successors.addAll(queue);
+        successors.sort(TrisState::comparatorMin);
+        return successors;
     }
 
-    protected ArrayList<TrisState> successorsMax(TrisState state)
+    protected ArrayList<TrisState> successorsMax(TrisState current)
     {
-        ArrayList<TrisState> temp = state.successorsMax();
-        temp.sort(TrisState::comparatorMax);
-        return temp;
+        PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMin);
+        ArrayList<TrisState> successors = new ArrayList<>();
+        TrisState temp = new TrisState(current);
+        for(int i = 0; i< TrisState.size; i++)
+            for (int j = 0; j < TrisState.size; j++)
+            {
+                if (current.state[i][j] == 0)
+                {
+                    temp.state[i][j] = 1;
+                    if(queue.size() < maxElements)
+                    {
+                        queue.add(temp);
+                        temp = new TrisState(current);
+                        continue;
+                    }
+                    if(TrisState.comparatorMax(temp, queue.peek()) == 1)
+                        temp.state[i][j] = 0;
+                    else
+                    {
+                        queue.add(temp);
+                        temp = queue.poll();
+                        temp.reset(current);
+                    }
+
+                }
+            }
+        successors.addAll(queue);
+        successors.sort(TrisState::comparatorMax);
+        return successors;
     }
 
 }
