@@ -2,7 +2,7 @@ package AlphaTris;
 
 import java.util.List;
 
-public class Main {
+/*public class Main {
 
     public static void main(String[] args) {
         TrisState t = new TrisState(5,5);
@@ -12,4 +12,4 @@ public class Main {
         s1.sort(TrisState::comparatorMin);
         System.out.println(s1.equals(s2));
     }
-}
+}*/

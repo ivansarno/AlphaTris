@@ -541,8 +541,7 @@ public class TrisState
     protected static void arrayOverwrite(byte[][] destination, byte[][] source)
     {
         for(int i = 0; i < source.length; i++)
-            for(int j = 0; j < source.length; j++)
-                destination[i][j] = source[i][j];
+            System.arraycopy(source[i], 0, destination[i], 0, source.length);
     }
     protected void reset()
     {

@@ -3,23 +3,26 @@ package AlphaTris;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by ivan on 11/06/2016.
- *
+ * Created by ivan on 20/06/2016.
  */
-public class SimpleEngine implements IEngine
+public class HardPoolEngine implements  IEngine
 {
-    protected int maxElements;
-    protected int maxDepth;
     protected boolean termination;
     protected ConcurrentHashMap<TrisState, Double> explored;
+    protected TrisPool pool;
+    protected int maxElements;
+    protected int depth;
+    protected final AtomicInteger resets = new AtomicInteger();
 
-    public SimpleEngine(int maxElements, int depth)
+    public HardPoolEngine(int maxElements, int depth)
     {
-        this.maxElements = maxElements;
-        this.maxDepth = depth;
         explored = new ConcurrentHashMap<>();
+        pool = new TrisPool();
+        this.maxElements =maxElements;
+        this.depth = depth;
     }
 
     public TrisState nextState(TrisState current)
@@ -30,84 +33,127 @@ public class SimpleEngine implements IEngine
 
         termination = false;
 
-        current = successorsMax(current).parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, maxDepth)))
+        ArrayList<TrisState> successors = successorsMax(current);
+        current = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth)))
                 .max(StateWrap::compareTo).get().state;
 
-        explored.clear();
-        System.gc();
-        return current;
+
+        pool.allocations.set(0);
+        pool.requests.set(0);
+        pool.refresh();
+        return pool.getCopy(current);
     }
 
 
-    protected double parallelMin(TrisState state, double alpha, double beta, int depth)
+    protected double evalMin(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
             throw new ABT();
 
+
         if(explored.containsKey(state))
-            return explored.get(state);
+        {
+            double value = explored.get(state);
+            pool.dispose(state);
+            return value;
+        }
 
         if(state.isTerminal())
+        {
+            explored.put(state, state.eval());
             return state.eval();
+        }
 
 
         if(depth == 0)
+        {
+            explored.put(state, state.heuristic());
             return state.heuristic();
+        }
 
 
         double current = Double.POSITIVE_INFINITY;
-        for (TrisState s: successorsMin(state))
+        ArrayList<TrisState> successors = successorsMin(state);
+
         {
 
-            current = Math.min(parallelMax(s, alpha, beta, depth-1), current);
-            if(current <= alpha)
-                return  current;
-            beta = Math.min(current, beta);
+            for (TrisState s: successors)
+            {
+
+                current = Math.min(evalMax(s, alpha, beta, depth-1), current);
+                if(current <= alpha)
+                {
+
+                    break;
+                }
+
+                beta = Math.min(current, beta);
 
 
-            if(beta == TrisState.minValue)
-                break;
+                if(beta == TrisState.minValue)
+                    break;
 
+            }
+            explored.put(state, current);
+            return current;
         }
 
-        explored.put(state, current);
-        return current;
+
+
     }
 
 
-    protected double parallelMax(TrisState state, double alpha, double beta, int depth)
+    protected double evalMax(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
             throw new ABT();
 
+
         if(explored.containsKey(state))
-            return explored.get(state);
+        {
+            double value = explored.get(state);
+            pool.dispose(state);
+            return value;
+        }
 
         if(state.isTerminal())
+        {
+            explored.put(state, state.eval());
             return state.eval();
+        }
 
 
         if(depth == 0)
         {
+            explored.put(state, state.heuristic());
             return state.heuristic();
         }
 
 
         double current = Double.NEGATIVE_INFINITY;
-        for (TrisState s : successorsMax(state))
+        ArrayList<TrisState> successors = successorsMin(state);
+
+
         {
-            current = Math.max(parallelMin(s, alpha, beta, depth-1), current);
-            if(current >= beta)
-                return current;
-            alpha = Math.max(alpha, current);
+            for (TrisState s : successors)
+            {
+
+                current = Math.max(evalMin(s, alpha, beta, depth-1), current);
+                if(current >= beta)
+                    break;
+                alpha = Math.max(alpha, current);
 
 
-            if(alpha == TrisState.maxValue)
-                break;
+                if(alpha == TrisState.maxValue)
+                    break;
 
+            }
+            explored.put(state, current);
+            return current;
         }
-        explored.put(state, current);
-        return current;
+
+
+
     }
 
     protected double parallelRoutine(TrisState state, int depth)
@@ -117,7 +163,7 @@ public class SimpleEngine implements IEngine
 
         try
         {
-            double val = parallelMin(state, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, depth - 1);
+            double val = evalMin(state, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, depth - 1);
             if (val == TrisState.maxValue)
                 termination = true;
             return val;
@@ -134,7 +180,7 @@ public class SimpleEngine implements IEngine
     {
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMax);
         ArrayList<TrisState> successors = new ArrayList<>();
-        TrisState temp = new TrisState(current);
+        TrisState temp = pool.getCopy(current);
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
@@ -144,7 +190,7 @@ public class SimpleEngine implements IEngine
                     if(queue.size() < maxElements)
                     {
                         queue.add(temp);
-                        temp = new TrisState(current);
+                        temp = pool.getCopy(current);
                         continue;
                     }
                     if(TrisState.comparatorMin(temp, queue.peek()) == 1)
@@ -157,6 +203,7 @@ public class SimpleEngine implements IEngine
                         queue.add(temp);
                         temp = queue.poll();
                         temp.reset(current);
+                        resets.incrementAndGet();
                     }
 
                 }
@@ -170,7 +217,7 @@ public class SimpleEngine implements IEngine
     {
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMin);
         ArrayList<TrisState> successors = new ArrayList<>();
-        TrisState temp = new TrisState(current);
+        TrisState temp = pool.getCopy(current);
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
@@ -180,7 +227,7 @@ public class SimpleEngine implements IEngine
                     if(queue.size() < maxElements)
                     {
                         queue.add(temp);
-                        temp = new TrisState(current);
+                        temp = pool.getCopy(current);
                         continue;
                     }
                     if(TrisState.comparatorMax(temp, queue.peek()) == 1)
@@ -193,6 +240,7 @@ public class SimpleEngine implements IEngine
                         queue.add(temp);
                         temp = queue.poll();
                         temp.reset(current);
+                        resets.incrementAndGet();
                     }
 
                 }
@@ -203,7 +251,3 @@ public class SimpleEngine implements IEngine
     }
 
 }
-
-
-
-

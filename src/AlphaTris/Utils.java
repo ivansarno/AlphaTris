@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 /**
  * Created by ivan on 11/06/2016.
+ *
  */
 class StateWrap implements Comparable<StateWrap>
 {

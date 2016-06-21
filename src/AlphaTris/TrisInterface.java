@@ -26,7 +26,7 @@ public class TrisInterface
     {
         TrisState t = new TrisState();
         System.out.println(t);
-        IEngine engine = getEngine(size, serie, t);
+        IEngine engine = getEngine(size);
         Scanner in = new Scanner(System.in);
         int x,y;
         while (!t.isTerminal())
@@ -39,8 +39,8 @@ public class TrisInterface
             t = engine.nextState(t);
             time = System.currentTimeMillis()- time;
             System.out.println();
-            /*System.out.println("tempo elaborazione mossa: " + time + "ms");
-            System.out.println("profondità esplorazione: " + depth);
+            System.out.println("tempo elaborazione mossa: " + time + "ms");
+            /*System.out.println("profondità esplorazione: " + maxDepth);
             System.out.println("nodi generati: " + TrisState.generated.get());
             System.out.println();*/
             System.out.println(t);
@@ -54,7 +54,7 @@ public class TrisInterface
 
     }
 
-    static IEngine getEngine(int size, int serie, TrisState t)
+    static IEngine getEngine(int size)
     {
         int maxElements;
         int depth;
@@ -73,7 +73,7 @@ public class TrisInterface
             maxElements = 20;
             depth = 2;
         }
-        return new SoftPoolEngine(maxElements, depth);
+        return new SimpleEngine(maxElements, depth);
     }
 
 }

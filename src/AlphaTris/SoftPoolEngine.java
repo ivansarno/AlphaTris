@@ -185,63 +185,40 @@ public class SoftPoolEngine implements  IEngine
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
-                if (current.state[i][j] == 0)
+                if (temp.state[i][j] == 0)
                 {
                     temp.state[i][j] = -1;
-                    if(queue.size() < maxElements)
-                    {
-                        queue.add(temp);
-                        temp = pool.getCopy(current);
-                        continue;
-                    }
-                    if(TrisState.comparatorMin(temp, queue.peek()) == 1)
-                        temp.state[i][j] = 0;
-                    else
-                    {
-                        queue.add(temp);
-                        temp = queue.poll();
-                        temp.reset(current);
-                        resets.incrementAndGet();
-                    }
+                    successors.add(temp);
+                    temp= pool.getCopy(current);
 
                 }
             }
-        successors.addAll(queue);
         successors.sort(TrisState::comparatorMin);
+        while (successors.size()> maxElements)
+            pool.dispose(successors.remove(successors.size()-1));
         return successors;
     }
 
     protected ArrayList<TrisState> successorsMax(TrisState current)
     {
-        PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMin);
+
         ArrayList<TrisState> successors = new ArrayList<>();
         TrisState temp = pool.getCopy(current);
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
-                if (current.state[i][j] == 0)
+                if (temp.state[i][j] == 0)
                 {
                     temp.state[i][j] = 1;
-                    if(queue.size() < maxElements)
-                    {
-                        queue.add(temp);
-                        temp = pool.getCopy(current);
-                        continue;
-                    }
-                    if(TrisState.comparatorMax(temp, queue.peek()) == 1)
-                        temp.state[i][j] = 0;
-                    else
-                    {
-                        queue.add(temp);
-                        temp = queue.poll();
-                        temp.reset(current);
-                        resets.incrementAndGet();
-                    }
+                    successors.add(temp);
+                    temp= pool.getCopy(current);
 
                 }
             }
-        successors.addAll(queue);
+
         successors.sort(TrisState::comparatorMax);
+        while (successors.size()> maxElements)
+            pool.dispose(successors.remove(successors.size()-1));
         return successors;
     }
 
