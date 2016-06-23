@@ -11,12 +11,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SoftPoolEngine implements  IEngine
 {
-    protected boolean termination;
-    protected ConcurrentHashMap<TrisState, Double> explored;
-    protected TrisPool pool;
-    protected int maxElements;
-    protected int depth;
-    protected final AtomicInteger resets = new AtomicInteger();
+    private boolean termination;
+    private ConcurrentHashMap<TrisState, Double> explored;
+    TrisPool pool;
+    int maxElements;
+    int depth;
+    final AtomicInteger resets = new AtomicInteger();
 
     public SoftPoolEngine(int maxElements, int depth)
     {
@@ -28,21 +28,22 @@ public class SoftPoolEngine implements  IEngine
 
     public TrisState nextState(TrisState current)
     {
-        if(current.isTerminal())
+        if(current.isTerminal)
             return current;
 
 
         termination = false;
 
         ArrayList<TrisState> successors = successorsMax(current);
-        current = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth)))
+        TrisState temp = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth)))
                 .max(StateWrap::compareTo).get().state;
 
 
         pool.allocations.set(0);
         pool.requests.set(0);
         pool.refresh();
-        return pool.getCopy(current);
+        current.reset(temp);
+        return current;
     }
 
 
@@ -59,17 +60,17 @@ public class SoftPoolEngine implements  IEngine
             return value;
         }
 
-        if(state.isTerminal())
+        if(state.isTerminal)
         {
-            explored.put(state, state.eval());
-            return state.eval();
+            explored.put(state, state.value);
+            return state.value;
         }
 
 
         if(depth == 0)
         {
-            explored.put(state, state.heuristic());
-            return state.heuristic();
+            explored.put(state, state.heuristicValue);
+            return state.heuristicValue;
         }
 
 
@@ -117,17 +118,17 @@ public class SoftPoolEngine implements  IEngine
             return value;
         }
 
-        if(state.isTerminal())
+        if(state.isTerminal)
         {
-            explored.put(state, state.eval());
-            return state.eval();
+            explored.put(state, state.value);
+            return state.value;
         }
 
 
         if(depth == 0)
         {
-            explored.put(state, state.heuristic());
-            return state.heuristic();
+            explored.put(state, state.heuristicValue);
+            return state.heuristicValue;
         }
 
 

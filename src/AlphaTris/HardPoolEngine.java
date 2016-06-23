@@ -27,21 +27,22 @@ public class HardPoolEngine implements  IEngine
 
     public TrisState nextState(TrisState current)
     {
-        if(current.isTerminal())
+        if(current.isTerminal)
             return current;
 
 
         termination = false;
 
         ArrayList<TrisState> successors = successorsMax(current);
-        current = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth)))
+        TrisState temp = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth)))
                 .max(StateWrap::compareTo).get().state;
 
 
         pool.allocations.set(0);
         pool.requests.set(0);
         pool.refresh();
-        return pool.getCopy(current);
+        current.reset(temp);
+        return current;
     }
 
 
@@ -58,17 +59,17 @@ public class HardPoolEngine implements  IEngine
             return value;
         }
 
-        if(state.isTerminal())
+        if(state.isTerminal)
         {
-            explored.put(state, state.eval());
-            return state.eval();
+            explored.put(state, state.value);
+            return state.value;
         }
 
 
         if(depth == 0)
         {
-            explored.put(state, state.heuristic());
-            return state.heuristic();
+            explored.put(state, state.heuristicValue);
+            return state.heuristicValue;
         }
 
 
@@ -116,17 +117,17 @@ public class HardPoolEngine implements  IEngine
             return value;
         }
 
-        if(state.isTerminal())
+        if(state.isTerminal)
         {
-            explored.put(state, state.eval());
-            return state.eval();
+            explored.put(state, state.value);
+            return state.value;
         }
 
 
         if(depth == 0)
         {
-            explored.put(state, state.heuristic());
-            return state.heuristic();
+            explored.put(state, state.heuristicValue);
+            return state.heuristicValue;
         }
 
 
@@ -196,7 +197,7 @@ public class HardPoolEngine implements  IEngine
                     if(TrisState.comparatorMin(temp, queue.peek()) == 1)
                     {
                         temp.state[i][j] = 0;
-                        temp.heuristicValue = Double.NaN;
+                        temp.revalue();
                     }
                     else
                     {
@@ -233,7 +234,7 @@ public class HardPoolEngine implements  IEngine
                     if(TrisState.comparatorMax(temp, queue.peek()) == 1)
                     {
                         temp.state[i][j] = 0;
-                        temp.heuristicValue = Double.NaN;
+                        temp.revalue();
                     }
                     else
                     {

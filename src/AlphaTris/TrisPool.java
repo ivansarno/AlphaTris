@@ -9,14 +9,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by ivan on 13/06/2016.
  *
  */
-public class TrisPool
+class TrisPool
 {
-    protected Deque<TrisState> pool;
+    Deque<TrisState> pool;
     List<TrisState> all;
-    protected final AtomicInteger requests = new AtomicInteger();
-    protected final AtomicInteger allocations = new AtomicInteger();
+    final AtomicInteger requests = new AtomicInteger();
+    final AtomicInteger allocations = new AtomicInteger();
 
-    public TrisPool()
+    TrisPool()
     {
         pool = new ConcurrentLinkedDeque<>();
         all = new Vector<>(1000);
@@ -26,52 +26,47 @@ public class TrisPool
     public TrisState getNew()
     {
         requests.incrementAndGet();
-        TrisState t = pool.poll();
-        if(t == null)
+        TrisState temp = pool.poll();
+        if(temp == null)
         {
             allocations.incrementAndGet();
-            t = new TrisState();
-            all.add(t);
-            return t;
+            temp = new TrisState();
+            all.add(temp);
+            return temp;
         }
-        t.reset();
-        return t;
+        temp.reset();
+        return temp;
     }
 
-    public TrisState getCopy(TrisState source)
+    TrisState getCopy(TrisState source)
     {
         requests.incrementAndGet();
-        TrisState t = pool.poll();
-        if(t == null)
+        TrisState temp = pool.poll();
+        if(temp == null)
         {
             allocations.incrementAndGet();
-            t = new TrisState(source);
-            all.add(t);
-            return t;
+            temp = new TrisState(source);
+            all.add(temp);
+            return temp;
         }
-        t.reset(source);
-        return t;
+        temp.reset(source);
+        return temp;
     }
 
-    public void refresh()
+    void refresh()
     {
         pool.clear();
         pool.addAll(all);
     }
 
-    public void dispose(TrisState s)
+    void dispose(TrisState s)
     {
         pool.push(s);
     }
 
-    public void disposeAll(Collection<TrisState> c)
+    void disposeAll(Collection<TrisState> c)
     {
         for (TrisState t : c)
             pool.push(t);
-    }
-    public void disposeAll(Enumeration<TrisState> c)
-    {
-        while (c.hasMoreElements())
-            pool.push(c.nextElement());
     }
 }

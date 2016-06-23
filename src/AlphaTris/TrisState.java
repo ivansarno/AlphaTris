@@ -6,44 +6,35 @@ import java.util.Arrays;
  * Created by ivan on 18/05/2016.
  *
  */
-public class TrisState
+class TrisState
 {
-    public final byte[][] state;
-    protected static int serie;
-    protected static int size;
-    protected double value;
-    protected double heuristicValue;
-    protected static double maxValue;
-    protected static double minValue;
+    final byte[][] state;
+    private static int serie;
+    static int size;
+    double value;
+    double heuristicValue;
+    static double maxValue;
+    static double minValue;
+    boolean isTerminal;
 
 
-    public TrisState(byte[][] state)
-    {
-        this.state = state;
-        heuristicValue = Double.NaN;
-        value = 0;
-    }
 
-    public TrisState()
+    TrisState()
     {
         state = new byte[size][size];
-        for (int i = 0; i < size; i++)
-        {
-            for (int j = 0; j < size; j++)
-                state[i][j] = 0;
-        }
-        value = 0;
-        heuristicValue = Double.NaN;
+        setZero(state);
     }
 
-    public TrisState(TrisState source)
+    TrisState(TrisState source)
     {
         this.state = arrayCopy(source.state);
-        heuristicValue = Double.NaN;
-        value = 0;
+        isTerminal = terminationTest();//setta anche value
+        if(isTerminal)
+            heuristicValue = value;
+        else heuristicValue = heuristicEvaluation();
     }
 
-    public static void init(int serie, int size)
+    static void init(int serie, int size)
     {
         TrisState.serie = serie;
         TrisState.size = size;
@@ -86,13 +77,10 @@ public class TrisState
     }
 
 
-    public double eval()
-    {
-        return value;
-    }
 
 
-    public boolean isTerminal()
+    //setta anche value
+    private boolean terminationTest()
     {
         int i, j;
         boolean noMoves = true;
@@ -117,20 +105,14 @@ public class TrisState
 
 
 
-    public double heuristic()
+    private double heuristicEvaluation()
     {
-        if(Double.isNaN(heuristicValue))
-        {
-            if(this.isTerminal())
-                heuristicValue = value;
-            else heuristicValue = columnsValue() + rowsValue() + diagonalsDXValue() + diagonalsSXValue();
-        }
-        return heuristicValue;
+        return columnsValue() + rowsValue() + diagonalsDXValue() + diagonalsSXValue();
     }
 
 
 
-    protected boolean checkSequence(int i, int j)
+    private boolean checkSequence(int i, int j)
     {
         if(state[i][j] == 0)
             return false;
@@ -194,7 +176,7 @@ public class TrisState
 
 
 
-    protected static byte[][] arrayCopy(byte[][] a)
+    private static byte[][] arrayCopy(byte[][] a)
     {
         int size = a.length;
         byte[][] n = new byte[size][];
@@ -203,14 +185,14 @@ public class TrisState
         return n;
     }
 
-    protected static double weight(int val)
+    private static double weight(int val)
     {
         if(val>0)
             return Math.pow(val, 2);
         return -Math.pow(val, 4);
     }
 
-    protected double columnsValue()
+    private double columnsValue()
     {
         int current, acc, zeroPrima, zeroDopo;
         double val = 0;
@@ -264,7 +246,7 @@ public class TrisState
         return val;
     }
 
-    protected double rowsValue()
+    private double rowsValue()
     {
         int current, acc, zeroPrima, zeroDopo;
         double val = 0;
@@ -318,7 +300,7 @@ public class TrisState
         return val;
     }
 
-    protected double diagonalsSXValue()
+    private double diagonalsSXValue()
     {
         int current, acc, zeroPrima, zeroDopo;
         double val = 0;
@@ -423,7 +405,7 @@ public class TrisState
         return val;
     }
 
-    protected double diagonalsDXValue()
+    private double diagonalsDXValue()
     {
         int current, acc, zeroPrima, zeroDopo;
         double val = 0;
@@ -485,7 +467,6 @@ public class TrisState
             int j,h;
             for (j = i, h = 0; j < size && h< size; j++, h++)
             {
-                //System.out.println(state[h][j]);
                 if (current == 0 && state[h][j] == 0)
                 {
                     current = state[h][j];
@@ -529,25 +510,26 @@ public class TrisState
     }
 
 
-    protected static int comparatorMin(TrisState a, TrisState b)
+    static int comparatorMin(TrisState a, TrisState b)
     {
-        return Double.compare(a.heuristic(), b.heuristic());
+        return Double.compare(a.heuristicEvaluation(), b.heuristicEvaluation());
     }
-    protected static int comparatorMax(TrisState a, TrisState b)
+    static int comparatorMax(TrisState a, TrisState b)
     {
-        return Double.compare(b.heuristic(), a.heuristic());
+        return Double.compare(b.heuristicEvaluation(), a.heuristicEvaluation());
     }
 
-    protected static void arrayOverwrite(byte[][] destination, byte[][] source)
+    private static void arrayOverwrite(byte[][] destination, byte[][] source)
     {
         for(int i = 0; i < source.length; i++)
             System.arraycopy(source[i], 0, destination[i], 0, source.length);
     }
-    protected void reset()
+    void reset()
     {
         setZero(state);
         value = 0.0;
-        heuristicValue = Double.NaN;
+        isTerminal = false;
+        heuristicValue = 0;
     }
 
     static void setZero(byte[][] a)
@@ -558,11 +540,21 @@ public class TrisState
                 a[i][j] = 0;
             }
     }
-    protected void reset(TrisState source)
+    void reset(TrisState source)
     {
         arrayOverwrite(this.state, source.state);
+        value = source.value;
+        isTerminal = source.isTerminal;
+        heuristicValue = source.heuristicValue;
+    }
+
+    void revalue()
+    {
         value = 0.0;
-        heuristicValue = Double.NaN;
+        isTerminal = terminationTest();
+        if(isTerminal)
+            heuristicValue = value;
+        else heuristicValue = heuristicEvaluation();
     }
 
 }

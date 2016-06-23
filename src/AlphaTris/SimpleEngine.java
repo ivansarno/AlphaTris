@@ -24,7 +24,7 @@ public class SimpleEngine implements IEngine
 
     public TrisState nextState(TrisState current)
     {
-        if(current.isTerminal())
+        if(current.isTerminal)
             return current;
 
 
@@ -47,12 +47,12 @@ public class SimpleEngine implements IEngine
         if(explored.containsKey(state))
             return explored.get(state);
 
-        if(state.isTerminal())
-            return state.eval();
+        if(state.isTerminal)
+            return state.value;
 
 
         if(depth == 0)
-            return state.heuristic();
+            return state.heuristicValue;
 
 
         double current = Double.POSITIVE_INFINITY;
@@ -83,13 +83,17 @@ public class SimpleEngine implements IEngine
         if(explored.containsKey(state))
             return explored.get(state);
 
-        if(state.isTerminal())
-            return state.eval();
+        if(state.isTerminal)
+        {
+            explored.put(state, state.value);
+            return state.value;
+        }
 
 
         if(depth == 0)
         {
-            return state.heuristic();
+            explored.put(state, state.heuristicValue);
+            return state.heuristicValue;
         }
 
 

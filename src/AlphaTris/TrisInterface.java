@@ -13,43 +13,43 @@ public class TrisInterface
     {
         System.out.println("Inserire 2 numeri, la dimensione della griglia e la lunghezza della serie");
         int serie, size;
-        Scanner in = new Scanner(System.in);
-        size = in.nextInt();
-        serie = in.nextInt();
+        Scanner input = new Scanner(System.in);
+        size = input.nextInt();
+        serie = input.nextInt();
         TrisState.init(serie, size);
-        System.out.println("Tu sei X");
-        game(size, serie);
+        IEngine engine = getEngine(size);
+        game(engine);
 
     }
 
-    static void game(int size, int serie)
+    static void game(IEngine engine)
     {
-        TrisState t = new TrisState();
-        System.out.println(t);
-        IEngine engine = getEngine(size);
-        Scanner in = new Scanner(System.in);
+        System.out.println("Tu sei X");
+        TrisState state = new TrisState();
+        System.out.println(state);
+        Scanner input = new Scanner(System.in);
         int x,y;
-        while (!t.isTerminal())
+        while (!state.isTerminal)
         {
             System.out.println("Inserire 2 numeri, la riga e la colonna della casella da segnare");
-            x = in.nextInt();
-            y = in.nextInt();
-            t.state[x][y] = -1;
+            x = input.nextInt();
+            y = input.nextInt();
+            state.state[x][y] = -1;
             long time = System.currentTimeMillis();
-            t = engine.nextState(t);
+            state = engine.nextState(state);
             time = System.currentTimeMillis()- time;
             System.out.println();
             System.out.println("tempo elaborazione mossa: " + time + "ms");
             /*System.out.println("profondità esplorazione: " + maxDepth);
             System.out.println("nodi generati: " + TrisState.generated.get());
             System.out.println();*/
-            System.out.println(t);
+            System.out.println(state);
         }
-        if(t.eval() == 0)
+        if(state.value == 0)
             System.out.println("Pareggio!");
-        else if(t.eval() > 0)
-            System.out.println("Hai perso :(");
-        else if(t.eval() < 0)
+        else if(state.value > 0)
+            System.out.println("Hai Perso :(");
+        else if(state.value < 0)
             System.out.println("Hai Vinto :)");
 
     }
