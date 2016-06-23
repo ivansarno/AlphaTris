@@ -512,11 +512,11 @@ class TrisState
 
     static int comparatorMin(TrisState a, TrisState b)
     {
-        return Double.compare(a.heuristicEvaluation(), b.heuristicEvaluation());
+        return Double.compare(a.heuristicValue, b.heuristicValue);
     }
     static int comparatorMax(TrisState a, TrisState b)
     {
-        return Double.compare(b.heuristicEvaluation(), a.heuristicEvaluation());
+        return Double.compare(b.heuristicValue, a.heuristicValue);
     }
 
     private static void arrayOverwrite(byte[][] destination, byte[][] source)
@@ -555,6 +555,13 @@ class TrisState
         if(isTerminal)
             heuristicValue = value;
         else heuristicValue = heuristicEvaluation();
+    }
+
+    void softReset(TrisState source)
+    {
+        value = source.value;
+        isTerminal = source.isTerminal;
+        heuristicValue = source.heuristicValue;
     }
 
 }

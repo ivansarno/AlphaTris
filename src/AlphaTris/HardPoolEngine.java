@@ -188,6 +188,7 @@ public class HardPoolEngine implements  IEngine
                 if (current.state[i][j] == 0)
                 {
                     temp.state[i][j] = -1;
+                    temp.revalue();
                     if(queue.size() < maxElements)
                     {
                         queue.add(temp);
@@ -197,7 +198,7 @@ public class HardPoolEngine implements  IEngine
                     if(TrisState.comparatorMin(temp, queue.peek()) == 1)
                     {
                         temp.state[i][j] = 0;
-                        temp.revalue();
+                        temp.softReset(current);
                     }
                     else
                     {
@@ -225,6 +226,7 @@ public class HardPoolEngine implements  IEngine
                 if (current.state[i][j] == 0)
                 {
                     temp.state[i][j] = 1;
+                    temp.revalue();
                     if(queue.size() < maxElements)
                     {
                         queue.add(temp);
@@ -234,7 +236,7 @@ public class HardPoolEngine implements  IEngine
                     if(TrisState.comparatorMax(temp, queue.peek()) == 1)
                     {
                         temp.state[i][j] = 0;
-                        temp.revalue();
+                        temp.softReset(current);
                     }
                     else
                     {
