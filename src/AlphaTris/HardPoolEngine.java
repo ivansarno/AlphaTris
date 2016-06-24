@@ -49,7 +49,7 @@ public class HardPoolEngine implements  IEngine
     protected double evalMin(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
-            throw new ABT();
+            throw new Interruption();
 
 
         if(explored.containsKey(state))
@@ -107,7 +107,7 @@ public class HardPoolEngine implements  IEngine
     protected double evalMax(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
-            throw new ABT();
+            throw new Interruption();
 
 
         if(explored.containsKey(state))
@@ -168,7 +168,7 @@ public class HardPoolEngine implements  IEngine
             if (val == TrisState.maxValue)
                 termination = true;
             return val;
-        } catch (ABT e)
+        } catch (Interruption e)
         {
             return Double.NEGATIVE_INFINITY;
         }

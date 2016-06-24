@@ -46,8 +46,13 @@ class TrisState
     public String toString()
     {
         StringBuilder builder = new StringBuilder(size*size);
+        builder.append(" ");
+        for(int i=0; i<size; i++)
+            builder.append(" " + i);
+        builder.append("\n");
         for(int i=0; i<size; i++)
         {
+            builder.append(i + " ");
             for(int j=0; j<size; j++)
                 if(state[i][j] == 0)
                     builder.append("_ ");
@@ -185,11 +190,37 @@ class TrisState
         return n;
     }
 
-    private static double weight(int val)
+    private static double weight1(int val, int length)
+    {
+        if(val>0)
+            return Math.pow(val, 2);//*length * (serie/size);
+        return -Math.pow(val, 4);//*length * (serie/size);
+    }
+
+    private static double weight2(int val, int length)
     {
         if(val>0)
             return Math.pow(val, 2);
-        return -Math.pow(val, 4);
+        return Math.pow(val, 3);
+    }
+
+    private static double weight3(int val, int length)
+    {
+        if(val>0)
+            return Math.pow(val, 2)*length;
+        return Math.pow(val, 3)*length;
+    }
+
+    private static double weight4(int val, int length)
+    {
+        if(val>0)
+            return Math.pow(val, 2)*length;
+        return -Math.pow(val, 4)*length;
+    }
+
+    private static double weight(int val, int length)
+    {
+        return weight3(val, length);
     }
 
     private double columnsValue()
@@ -231,7 +262,7 @@ class TrisState
                 if (current != state[i][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += weight(acc);
+                        val += weight(acc, zeroDopo+zeroPrima);
                     current = state[i][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -239,7 +270,7 @@ class TrisState
                 }
             }
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += weight(acc);
+                val += weight(acc, zeroDopo+zeroPrima);
         }
 
 
@@ -285,7 +316,7 @@ class TrisState
                 if (current != state[i][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += weight(acc);
+                        val += weight(acc, zeroDopo+zeroPrima);
                     current = state[i][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -293,7 +324,7 @@ class TrisState
                 }
             }
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += weight(acc);
+                val += weight(acc, zeroDopo+zeroPrima);
         }
 
 
@@ -341,7 +372,7 @@ class TrisState
                 if (current != state[h][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += weight(acc);
+                        val += weight(acc, zeroDopo+zeroPrima);
                     current = state[h][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -350,7 +381,7 @@ class TrisState
             }
 
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += weight(acc);
+                val += weight(acc, zeroDopo+zeroPrima);
         }
 
         for (int i = 1; i <= size-serie; i++)
@@ -389,7 +420,7 @@ class TrisState
                 if (current != state[h][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += weight(acc);
+                        val += weight(acc, zeroDopo+zeroPrima);
                     current = state[h][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -398,7 +429,7 @@ class TrisState
             }
 
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += weight(acc);
+                val += weight(acc, zeroDopo+zeroPrima);
         }
 
 
@@ -446,7 +477,7 @@ class TrisState
                 if (current != state[h][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += weight(acc);
+                        val += weight(acc, zeroDopo+zeroPrima);
                     current = state[h][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -455,7 +486,7 @@ class TrisState
             }
 
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += weight(acc);
+                val += weight(acc, zeroDopo+zeroPrima);
         }
 
         for (int i = 1; i <= size-serie; i++)
@@ -493,7 +524,7 @@ class TrisState
                 if (current != state[h][j])
                 {
                     if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                        val += weight(acc);
+                        val += weight(acc, zeroDopo+zeroPrima);
                     current = state[h][j];
                     acc = current;
                     zeroPrima = zeroDopo;
@@ -502,7 +533,7 @@ class TrisState
             }
 
             if (Math.abs(acc) + zeroPrima + zeroDopo >= serie)
-                val += weight(acc);
+                val += weight(acc, zeroDopo+zeroPrima);
         }
 
 

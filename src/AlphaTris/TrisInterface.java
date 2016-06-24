@@ -35,6 +35,7 @@ public class TrisInterface
             x = input.nextInt();
             y = input.nextInt();
             state.state[x][y] = -1;
+            state.revalue();
             long time = System.currentTimeMillis();
             state = engine.nextState(state);
             time = System.currentTimeMillis()- time;
@@ -60,20 +61,21 @@ public class TrisInterface
         int depth;
         if(size <= 10)
         {
-            maxElements = 10;
+            maxElements = 8;
             depth = 6;
         }
         else if(size > 10 && size < 25)
         {
-            maxElements = 12;
+            maxElements = 10;
             depth = 4;
         }
         else
         {
-            maxElements = 20;
+            maxElements = 17;
             depth = 2;
         }
-        return new SoftPoolEngine(maxElements, depth);
+        return new SimpleEngine(maxElements, depth);
     }
+
 
 }

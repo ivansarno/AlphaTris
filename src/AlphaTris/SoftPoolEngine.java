@@ -45,12 +45,32 @@ public class SoftPoolEngine implements  IEngine
         current.reset(temp);
         return current;
     }
+    public TrisState nextState2(TrisState current)
+    {
+        if(current.isTerminal)
+            return current;
+
+
+        termination = false;
+
+        ArrayList<StateWrap> successors = new ArrayList<>(maxElements);
+        successorsMax(current).parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth))).sequential().forEach(successors::add);
+        StateWrap max = successors.stream().max(StateWrap::compareTo).get();
+        TrisState temp = successors.stream().filter(x -> x.compareTo(max) == 0).
+                max((x,y) -> Double.compare(x.state.heuristicValue, y.state.heuristicValue)).get().state;
+
+        pool.allocations.set(0);
+        pool.requests.set(0);
+        pool.refresh();
+        current.reset(temp);
+        return current;
+    }
 
 
     protected double evalMin(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
-            throw new ABT();
+            throw new Interruption();
 
         if(state.isTerminal)
         {
@@ -107,7 +127,7 @@ public class SoftPoolEngine implements  IEngine
     protected double evalMax(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
-            throw new ABT();
+            throw new Interruption();
 
         if(state.isTerminal)
         {
@@ -167,7 +187,7 @@ public class SoftPoolEngine implements  IEngine
             if (val == TrisState.maxValue)
                 termination = true;
             return val;
-        } catch (ABT e)
+        } catch (Interruption e)
         {
             return Double.NEGATIVE_INFINITY;
         }

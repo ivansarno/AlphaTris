@@ -28,7 +28,7 @@ class StateWrap implements Comparable<StateWrap>
     }
 }
 
-class ABT extends RuntimeException
+class Interruption extends RuntimeException
 {
 
 }
