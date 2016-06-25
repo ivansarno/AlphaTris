@@ -38,7 +38,7 @@ class TrisState
     {
         TrisState.serie = serie;
         TrisState.size = size;
-        maxValue = Math.pow(size,4)* size * 10;
+        maxValue = Math.pow(size,6) * 10;
         minValue = -maxValue;
     }
 
@@ -220,7 +220,7 @@ class TrisState
 
     private static double weight(int val, int length)
     {
-        return weight3(val, length);
+        return weight4(val, length);
     }
 
     private double columnsValue()

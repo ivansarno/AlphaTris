@@ -26,7 +26,7 @@ public class SoftPoolEngine implements  IEngine
         this.depth = depth;
     }
 
-    public TrisState nextState(TrisState current)
+    public TrisState nextState2(TrisState current)
     {
         if(current.isTerminal)
             return current;
@@ -45,7 +45,7 @@ public class SoftPoolEngine implements  IEngine
         current.reset(temp);
         return current;
     }
-    public TrisState nextState2(TrisState current)
+    public TrisState nextState(TrisState current)
     {
         if(current.isTerminal)
             return current;
