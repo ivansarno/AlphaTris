@@ -22,9 +22,17 @@ class StateWrap implements Comparable<StateWrap>
 
 
 
-    public int compareTo(StateWrap o)
+    /*public int compareTo(StateWrap o)
     {
         return Double.compare(this.value, o.value);
+    }*/
+
+    public int compareTo(StateWrap o)
+    {
+        int result = Double.compare(this.value, o.value);
+        if(result != 0)
+            return result;
+        return Double.compare(this.state.heuristicValue, o.state.heuristicValue);
     }
 }
 

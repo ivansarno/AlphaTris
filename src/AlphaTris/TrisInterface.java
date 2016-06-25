@@ -74,7 +74,7 @@ public class TrisInterface
             maxElements = 17;
             depth = 2;
         }
-        return new SoftPoolEngine(maxElements, depth);
+        return new HardPoolEngine(maxElements, depth);
     }
 
 

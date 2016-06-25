@@ -46,23 +46,23 @@ public class HardPoolEngine implements  IEngine
     }
 
 
+
     protected double evalMin(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
             throw new Interruption();
 
+        if(state.isTerminal)
+        {
+            explored.put(state, state.value);
+            return state.value;
+        }
 
         if(explored.containsKey(state))
         {
             double value = explored.get(state);
             pool.dispose(state);
             return value;
-        }
-
-        if(state.isTerminal)
-        {
-            explored.put(state, state.value);
-            return state.value;
         }
 
 
@@ -109,18 +109,17 @@ public class HardPoolEngine implements  IEngine
         if(termination)
             throw new Interruption();
 
+        if(state.isTerminal)
+        {
+            explored.put(state, state.value);
+            return state.value;
+        }
 
         if(explored.containsKey(state))
         {
             double value = explored.get(state);
             pool.dispose(state);
             return value;
-        }
-
-        if(state.isTerminal)
-        {
-            explored.put(state, state.value);
-            return state.value;
         }
 
 
@@ -188,7 +187,6 @@ public class HardPoolEngine implements  IEngine
                 if (current.state[i][j] == 0)
                 {
                     temp.state[i][j] = -1;
-                    temp.revalue();
                     if(queue.size() < maxElements)
                     {
                         queue.add(temp);
@@ -205,7 +203,6 @@ public class HardPoolEngine implements  IEngine
                         queue.add(temp);
                         temp = queue.poll();
                         temp.reset(current);
-                        resets.incrementAndGet();
                     }
 
                 }
@@ -243,7 +240,6 @@ public class HardPoolEngine implements  IEngine
                         queue.add(temp);
                         temp = queue.poll();
                         temp.reset(current);
-                        resets.incrementAndGet();
                     }
 
                 }
@@ -252,5 +248,4 @@ public class HardPoolEngine implements  IEngine
         successors.sort(TrisState::comparatorMax);
         return successors;
     }
-
 }
