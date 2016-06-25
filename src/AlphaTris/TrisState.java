@@ -217,10 +217,16 @@ class TrisState
             return Math.pow(val, 2)*length;
         return -Math.pow(val, 4)*length;
     }
+    private static double weight5(int val, int length)
+    {
+        if(val>0)
+            return Math.pow(val, 2);
+        return -Math.pow(val, 4)*length/size;
+    }
 
     private static double weight(int val, int length)
     {
-        return weight4(val, length);
+        return weight5(val, length);
     }
 
     private double columnsValue()
