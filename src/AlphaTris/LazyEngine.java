@@ -33,7 +33,6 @@ public class LazyEngine implements IEngine
                 .max(StateWrap::compareTo).get().state;
 
         explored.clear();
-        System.gc();
         return current;
     }
 

@@ -61,20 +61,20 @@ public class TrisInterface
         int depth;
         if(size <= 10)
         {
-            maxElements = 8;
-            depth = 6;
+            maxElements = 25;
+            depth = 8;
         }
-        else if(size > 10 && size < 25)
+        else if(size > 10 && size <= 25)
         {
-            maxElements = 10;
-            depth = 4;
+            maxElements = 30;
+            depth = 5;
         }
         else
         {
-            maxElements = 17;
-            depth = 2;
+            maxElements = 50;
+            depth = 3;
         }
-        return new HardPoolEngine(maxElements, depth);
+        return new PreallocEngine(maxElements, depth);
     }
 
 

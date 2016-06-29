@@ -6,18 +6,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by ivan on 29/06/16.
+ * Created by ivan on 20/06/2016.
  */
-public class SoftPoolEngine implements  IEngine
+public class LazyPoolEngine implements  IEngine
 {
-    private boolean termination;
-    private ConcurrentHashMap<TrisState, Double> explored;
-    TrisPool pool;
-    int maxElements;
-    int depth;
-    final AtomicInteger resets = new AtomicInteger();
+    protected boolean termination;
+    protected ConcurrentHashMap<TrisState, Double> explored;
+    protected TrisPool pool;
+    protected int maxElements;
+    protected int depth;
+    protected final AtomicInteger resets = new AtomicInteger();
 
-    public SoftPoolEngine(int maxElements, int depth)
+    public LazyPoolEngine(int maxElements, int depth)
     {
         explored = new ConcurrentHashMap<>();
         pool = new TrisPool();
@@ -37,7 +37,7 @@ public class SoftPoolEngine implements  IEngine
         TrisState temp = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, depth)))
                 .max(StateWrap::compareTo).get().state;
 
-
+        //System.out.println(pool.requests);
         explored.clear();
         pool.allocations.set(0);
         pool.requests.set(0);
@@ -62,7 +62,7 @@ public class SoftPoolEngine implements  IEngine
         if(explored.containsKey(state))
         {
             double value = explored.get(state);
-            //pool.dispose(state);
+            pool.dispose(state);
             return value;
         }
 
@@ -119,7 +119,7 @@ public class SoftPoolEngine implements  IEngine
         if(explored.containsKey(state))
         {
             double value = explored.get(state);
-            //pool.dispose(state);
+            pool.dispose(state);
             return value;
         }
 
@@ -185,44 +185,68 @@ public class SoftPoolEngine implements  IEngine
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
-                if (temp.state[i][j] == 0)
+                if (current.state[i][j] == 0)
                 {
                     temp.state[i][j] = -1;
-                    temp.revalue();
-                    successors.add(temp);
-                    temp= pool.getCopy(current);
+                    if(queue.size() < maxElements)
+                    {
+                        queue.add(temp);
+                        temp = pool.getCopy(current);
+                        continue;
+                    }
+                    if(TrisState.comparatorMin(temp, queue.peek()) == 1)
+                    {
+                        temp.state[i][j] = 0;
+                        temp.softReset(current);
+                    }
+                    else
+                    {
+                        queue.add(temp);
+                        temp = queue.poll();
+                        temp.reset(current);
+                    }
 
                 }
             }
+        successors.addAll(queue);
         successors.sort(TrisState::comparatorMin);
-        while (successors.size()> maxElements)
-            successors.remove(successors.size()-1);
         return successors;
     }
 
     protected ArrayList<TrisState> successorsMax(TrisState current)
     {
-
+        PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMin);
         ArrayList<TrisState> successors = new ArrayList<>();
         TrisState temp = pool.getCopy(current);
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
-                if (temp.state[i][j] == 0)
+                if (current.state[i][j] == 0)
                 {
                     temp.state[i][j] = 1;
                     temp.revalue();
-                    successors.add(temp);
-                    temp= pool.getCopy(current);
+                    if(queue.size() < maxElements)
+                    {
+                        queue.add(temp);
+                        temp = pool.getCopy(current);
+                        continue;
+                    }
+                    if(TrisState.comparatorMax(temp, queue.peek()) == 1)
+                    {
+                        temp.state[i][j] = 0;
+                        temp.softReset(current);
+                    }
+                    else
+                    {
+                        queue.add(temp);
+                        temp = queue.poll();
+                        temp.reset(current);
+                    }
 
                 }
             }
-
+        successors.addAll(queue);
         successors.sort(TrisState::comparatorMax);
-        while (successors.size()> maxElements)
-            successors.remove(successors.size()-1);
         return successors;
     }
-
 }
-

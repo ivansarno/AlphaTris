@@ -22,7 +22,6 @@ class TrisState
     TrisState()
     {
         state = new byte[size][size];
-        setZero(state);
     }
 
     TrisState(TrisState source)
@@ -45,7 +44,7 @@ class TrisState
     @Override
     public String toString()
     {
-        StringBuilder builder = new StringBuilder(size*size);
+        StringBuilder builder = new StringBuilder(size*(size+2));
         builder.append(" ");
         for(int i=0; i<size; i++)
             builder.append(" " + i);

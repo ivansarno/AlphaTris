@@ -33,8 +33,7 @@ public class SimpleEngine implements IEngine
         current = successorsMax(current).parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, maxDepth)))
                 .max(StateWrap::compareTo).get().state;
 
-        explored.clear();
-        System.gc();
+        explored.clear();;
         return current;
     }
 
