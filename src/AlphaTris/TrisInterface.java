@@ -7,7 +7,7 @@ import java.util.Scanner;
  * Created by ivan on 11/06/2016.
  *
  */
-public class TrisInterface
+class TrisInterface
 {
     public static void main(String[] args)
     {
@@ -21,7 +21,7 @@ public class TrisInterface
 
     }
 
-    static void game()
+    private static void game()
     {
         System.out.println("Tu sei X");
         TrisState state = new TrisState();
@@ -58,7 +58,7 @@ public class TrisInterface
 
     }
 
-    static Engine getEngine()
+    private static Engine getEngine()
     {
         int maxElements;
         int depth;

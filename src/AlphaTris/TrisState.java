@@ -576,7 +576,7 @@ class TrisState
         heuristicValue = 0;
     }
 
-    static void setZero(byte[][] a)
+    private static void setZero(byte[][] a)
     {
         for(int i=0; i< a.length; i++)
             for(int j=0; j<a.length; j++)

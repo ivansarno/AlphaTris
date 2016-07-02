@@ -1,6 +1,5 @@
 package AlphaTris;
 
-import java.util.Comparator;
 
 /**
  * Created by ivan on 11/06/2016.
@@ -18,14 +17,10 @@ class StateWrap implements Comparable<StateWrap>
 
 
     final TrisState state;
-    final double value;
+    private final double value;
 
 
 
-    /*public int compareTo(StateWrap o)
-    {
-        return Double.compare(this.value, o.value);
-    }*/
 
     public int compareTo(StateWrap o)
     {

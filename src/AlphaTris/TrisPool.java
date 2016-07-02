@@ -3,7 +3,6 @@ package AlphaTris;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by ivan on 13/06/2016.
@@ -11,8 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 class TrisPool
 {
-    Deque<TrisState> pool;
-    List<TrisState> all;
+    private final Deque<TrisState> pool;
+    final List<TrisState> all;
 
 
     TrisPool()
@@ -62,9 +61,4 @@ class TrisPool
         pool.push(s);
     }
 
-    void disposeAll(Collection<TrisState> c)
-    {
-        for (TrisState t : c)
-            pool.push(t);
-    }
 }

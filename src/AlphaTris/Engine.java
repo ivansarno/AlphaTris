@@ -3,19 +3,19 @@ package AlphaTris;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+
 
 /**
  * Created by ivan on 20/06/2016.
  *
  */
-public class Engine
+class Engine
 {
-    protected boolean termination;
-    protected ConcurrentHashMap<TrisState, Double> explored;
-    protected TrisPool pool;
-    protected int maxElements;
-    protected int maxDepth;
+    private boolean termination;
+    private final ConcurrentHashMap<TrisState, Double> explored;
+    private final TrisPool pool;
+    final int maxElements;
+    final int maxDepth;
 
     public Engine(int maxElements, int depth) {
         explored = new ConcurrentHashMap<>();
@@ -54,7 +54,7 @@ public class Engine
 
 
 
-    protected double evalMin(TrisState state, double alpha, double beta, int depth)
+    private double evalMin(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
             throw new Interruption();
@@ -111,7 +111,7 @@ public class Engine
     }
 
 
-    protected double evalMax(TrisState state, double alpha, double beta, int depth)
+    private double evalMax(TrisState state, double alpha, double beta, int depth)
     {
         if(termination)
             throw new Interruption();
@@ -163,7 +163,7 @@ public class Engine
 
     }
 
-    protected double parallelRoutine(TrisState state, int depth)
+    private double parallelRoutine(TrisState state, int depth)
     {
         if (termination)
             return Double.NEGATIVE_INFINITY;
@@ -183,7 +183,7 @@ public class Engine
 
 
 
-    protected ArrayList<TrisState> successorsMin(TrisState current)
+    private ArrayList<TrisState> successorsMin(TrisState current)
     {
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMax);
         ArrayList<TrisState> successors = new ArrayList<>();
@@ -219,7 +219,7 @@ public class Engine
         return successors;
     }
 
-    protected ArrayList<TrisState> successorsMax(TrisState current)
+    private ArrayList<TrisState> successorsMax(TrisState current)
     {
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMin);
         ArrayList<TrisState> successors = new ArrayList<>();
