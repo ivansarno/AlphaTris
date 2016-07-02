@@ -45,13 +45,21 @@ class TrisState
     public String toString()
     {
         StringBuilder builder = new StringBuilder(size*(size+2));
-        builder.append(" ");
+        builder.append("  ");
         for(int i=0; i<size; i++)
-            builder.append(" " + i);
+            if(i>=10)
+                builder.append(" " + i/10);
+        builder.append("\n  ");
+        for(int i=0; i<size; i++)
+            builder.append(" " + i%10);
+
         builder.append("\n");
         for(int i=0; i<size; i++)
         {
-            builder.append(i + " ");
+            if(i<10)
+                builder.append(i + "  ");
+            else builder.append(i + " ");
+
             for(int j=0; j<size; j++)
                 if(state[i][j] == 0)
                     builder.append("_ ");

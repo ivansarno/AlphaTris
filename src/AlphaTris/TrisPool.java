@@ -13,8 +13,7 @@ class TrisPool
 {
     Deque<TrisState> pool;
     List<TrisState> all;
-    final AtomicInteger requests = new AtomicInteger();
-    final AtomicInteger allocations = new AtomicInteger();
+
 
     TrisPool()
     {
@@ -25,11 +24,11 @@ class TrisPool
 
     public TrisState getNew()
     {
-        requests.incrementAndGet();
+
         TrisState temp = pool.poll();
         if(temp == null)
         {
-            allocations.incrementAndGet();
+
             temp = new TrisState();
             all.add(temp);
             return temp;
@@ -40,11 +39,10 @@ class TrisPool
 
     TrisState getCopy(TrisState source)
     {
-        requests.incrementAndGet();
+
         TrisState temp = pool.poll();
         if(temp == null)
         {
-            allocations.incrementAndGet();
             temp = new TrisState(source);
             all.add(temp);
             return temp;
