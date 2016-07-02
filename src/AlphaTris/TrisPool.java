@@ -17,7 +17,7 @@ class TrisPool
     TrisPool()
     {
         pool = new ConcurrentLinkedDeque<>();
-        all = new Vector<>(1000);
+        all = new Vector<>(10000 * TrisState.size);
     }
 
 
