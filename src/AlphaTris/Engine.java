@@ -203,7 +203,7 @@ class Engine
                     if(TrisState.comparatorMin(temp, queue.peek()) == 1)
                     {
                         temp.state[i][j] = 0;
-                        temp.softReset(current);
+                        temp.revalue(current);
                     }
                     else
                     {
@@ -240,7 +240,7 @@ class Engine
                     if(TrisState.comparatorMax(temp, queue.peek()) == 1)
                     {
                         temp.state[i][j] = 0;
-                        temp.softReset(current);
+                        temp.revalue(current);
                     }
                     else
                     {

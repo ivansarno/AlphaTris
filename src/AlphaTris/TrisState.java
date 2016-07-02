@@ -197,43 +197,12 @@ class TrisState
         return n;
     }
 
-    private static double weight1(int val, int length)
-    {
-        if(val>0)
-            return Math.pow(val, 2);//*length * (serie/size);
-        return -Math.pow(val, 4);//*length * (serie/size);
-    }
-
-    private static double weight2(int val, int length)
-    {
-        if(val>0)
-            return Math.pow(val, 2);
-        return Math.pow(val, 3);
-    }
-
-    private static double weight3(int val, int length)
-    {
-        if(val>0)
-            return Math.pow(val, 2)*length;
-        return Math.pow(val, 3)*length;
-    }
-
-    private static double weight4(int val, int length)
-    {
-        if(val>0)
-            return Math.pow(val, 2)*length;
-        return -Math.pow(val, 4)*length;
-    }
-    private static double weight5(int val, int length)
-    {
-        if(val>0)
-            return Math.pow(val, 2);
-        return -Math.pow(val, 4)*length/size;
-    }
 
     private static double weight(int val, int length)
     {
-        return weight5(val, length);
+        if(val>0)
+            return Math.pow(val, 2);
+        return -Math.pow(-val, 3.6)*length/size;
     }
 
     private double columnsValue()
@@ -578,12 +547,10 @@ class TrisState
 
     private static void setZero(byte[][] a)
     {
-        for(int i=0; i< a.length; i++)
-            for(int j=0; j<a.length; j++)
-            {
-                a[i][j] = 0;
-            }
+        for (byte[] anA : a)
+            Arrays.fill(anA, (byte) 0);
     }
+    
     void reset(TrisState source)
     {
         arrayOverwrite(this.state, source.state);
@@ -601,7 +568,7 @@ class TrisState
         else heuristicValue = heuristicEvaluation();
     }
 
-    void softReset(TrisState source)
+    void revalue(TrisState source)
     {
         value = source.value;
         isTerminal = source.isTerminal;

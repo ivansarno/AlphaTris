@@ -23,7 +23,7 @@ class TrisInterface
 
     private static void game()
     {
-        System.out.println("Tu sei X");
+        System.out.println("\nTu sei X");
         TrisState state = new TrisState();
         System.out.println(state);
         Engine engine = getEngine();
