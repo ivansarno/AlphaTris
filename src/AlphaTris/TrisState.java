@@ -550,7 +550,7 @@ class TrisState
         for (byte[] anA : a)
             Arrays.fill(anA, (byte) 0);
     }
-    
+
     void reset(TrisState source)
     {
         arrayOverwrite(this.state, source.state);

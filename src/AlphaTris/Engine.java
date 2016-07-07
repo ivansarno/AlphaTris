@@ -22,7 +22,8 @@ class Engine
         pool = new TrisPool();
         this.maxElements = maxElements;
         this.maxDepth = depth;
-        for (int i = 0; i < 10000 * TrisState.size; i++) {
+        int allocations = Math.min(10000 * TrisState.size, 200000);
+        for (int i = 0; i < allocations; i++) {
             TrisState s = new TrisState();
             pool.all.add(s);
         }
