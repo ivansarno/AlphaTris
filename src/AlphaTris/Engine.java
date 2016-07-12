@@ -21,7 +21,7 @@ class Engine
         explored = new ConcurrentHashMap<>();
         this.maxElements = maxElements;
         this.maxDepth = depth;
-        int allocations = Math.min(10000 * TrisState.size, 200000);
+        int allocations = TrisState.size > 15 ? 100000 : 200000;
         pool = new TrisPool(allocations);
         for (int i = 0; i < allocations; i++) {
             TrisState s = new TrisState();

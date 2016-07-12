@@ -46,9 +46,12 @@ class TrisState
     {
         StringBuilder builder = new StringBuilder(size*(size+2));
         builder.append("  ");
-        for(int i=0; i<size; i++)
-            if(i>=10)
-                builder.append(" " + i/10);
+        if(size > 9)
+            for(int i=0; i<size; i++)
+                if(i>=10)
+                    builder.append(" " + i/10);
+                else  builder.append("  ");
+
         builder.append("\n  ");
         for(int i=0; i<size; i++)
             builder.append(" " + i%10);
@@ -100,15 +103,15 @@ class TrisState
         {
             for(j=0; j<size;j++)
             {
-                if(checkSequence(i,j))
-                {
-                    if(state[i][j] == -1)
-                        value = minValue;
-                    else value = maxValue;
-                    return true;
-                }
-                if(state[i][j] == 0)
-                    noMoves = false;
+                if(state[i][j] != 0)
+                    if(checkSequence(i,j))
+                    {
+                        if(state[i][j] == -1)
+                            value = minValue;
+                        else value = maxValue;
+                        return true;
+                    }
+                else noMoves = false;
             }
 
         }
@@ -126,8 +129,6 @@ class TrisState
 
     private boolean checkSequence(int i, int j)
     {
-        if(state[i][j] == 0)
-            return false;
         if(i+serie-1 < size)
         {
             int h = i + 1;

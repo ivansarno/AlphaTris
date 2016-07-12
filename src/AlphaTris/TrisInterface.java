@@ -60,14 +60,12 @@ class TrisInterface
 
     private static Engine getEngine()
     {
-        if(TrisState.size == 9)
-            return new Engine(25, 7);
         int maxElements;
         int depth;
         if(TrisState.size <= 10)
         {
             maxElements = 25;
-            depth = Math.min(TrisState.size-1, 8);
+            depth = 8;
         }
         else if(TrisState.size > 10 && TrisState.size <= 25)
         {
