@@ -14,10 +14,10 @@ class TrisPool
     final List<TrisState> all;
 
 
-    TrisPool()
+    TrisPool(int allocation)
     {
         pool = new ConcurrentLinkedDeque<>();
-        all = new Vector<>(10000 * TrisState.size);
+        all = new Vector<>(allocation);
     }
 
 

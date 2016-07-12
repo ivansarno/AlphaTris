@@ -19,10 +19,10 @@ class Engine
 
     public Engine(int maxElements, int depth) {
         explored = new ConcurrentHashMap<>();
-        pool = new TrisPool();
         this.maxElements = maxElements;
         this.maxDepth = depth;
         int allocations = Math.min(10000 * TrisState.size, 200000);
+        pool = new TrisPool(allocations);
         for (int i = 0; i < allocations; i++) {
             TrisState s = new TrisState();
             pool.all.add(s);
