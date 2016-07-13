@@ -180,51 +180,59 @@ class Engine
 
     private ArrayList<TrisState> successorsMin(TrisState current)
     {
+        /*La coda di priorità usa il comparatore per Min perchè voglio un ordine invertito
+        l'elemento peggiore in testa alla coda, in modo da poterlo confrontare e sostituire         */
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMax);
-        ArrayList<TrisState> successors = new ArrayList<>();
         TrisState temp = pool.getCopy(current);
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
-                if (current.state[i][j] == 0)
+                if (current.state[i][j] == 0)//cerco una cella vuota
                 {
-                    temp.state[i][j] = -1;
+                    temp.state[i][j] = -1;//la marco per l'avversario
+                    temp.revalue(); //assegno il nuovo valore
                     if(queue.size() < maxElements)
                     {
+                        //non ho generato il massimo numero di successori
+                        //aggiungo quello nuovo alla coda
                         queue.add(temp);
                         temp = pool.getCopy(current);
                         continue;
                     }
                     if(TrisState.comparatorMin(temp, queue.peek()) == 1)
                     {
+                        //il successore generato è peggiore di tutti quelli nella coda
+                        //lo resetto
                         temp.state[i][j] = 0;
                         temp.revalue(current);
                     }
                     else
                     {
+                        //aggiungo il successore alla coda
                         queue.add(temp);
+                        //estraggo il peggiore e lo resetto
                         temp = queue.poll();
                         temp.reset(current);
                     }
 
                 }
             }
-        successors.addAll(queue);
-        successors.sort(TrisState::comparatorMin);
+        ArrayList<TrisState> successors = new ArrayList<>(queue);
+        successors.sort(TrisState::comparatorMin); //ordinamento dei successori
         return successors;
     }
 
     private ArrayList<TrisState> successorsMax(TrisState current)
     {
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMin);
-        ArrayList<TrisState> successors = new ArrayList<>();
         TrisState temp = pool.getCopy(current);
+
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
                 if (current.state[i][j] == 0)
                 {
-                    temp.state[i][j] = 1;
+                    temp.state[i][j] = 1;//la marco per il programma
                     temp.revalue();
                     if(queue.size() < maxElements)
                     {
@@ -246,7 +254,7 @@ class Engine
 
                 }
             }
-        successors.addAll(queue);
+        ArrayList<TrisState> successors = new ArrayList<>(queue);
         successors.sort(TrisState::comparatorMax);
         return successors;
     }

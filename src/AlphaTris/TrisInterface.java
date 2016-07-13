@@ -69,8 +69,8 @@ class TrisInterface
         int depth;
         if(TrisState.size <= 10)
         {
-            maxElements = 25;
-            depth = 8;
+            maxElements = 5;
+            depth = 10;
         }
         else if(TrisState.size > 10 && TrisState.size <= 25)
         {
