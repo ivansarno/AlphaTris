@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 class TrisPool
 {
-    private final Deque<TrisState> pool;
-    final List<TrisState> all;
+    private final Deque<TrisState> pool; //lista di tutti i nodi disponibili
+    final List<TrisState> all;//lista di tutti i nodi allocati
 
 
     TrisPool(int allocation)
@@ -27,7 +27,6 @@ class TrisPool
         TrisState temp = pool.poll();
         if(temp == null)
         {
-
             temp = new TrisState();
             all.add(temp);
             return temp;
@@ -50,15 +49,16 @@ class TrisPool
         return temp;
     }
 
+    //rende disponibili tutti i nodi allocati
     void refresh()
     {
         pool.clear();
         pool.addAll(all);
     }
 
+    //rende disponibile un nodo
     void dispose(TrisState s)
     {
         pool.push(s);
     }
-
 }

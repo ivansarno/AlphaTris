@@ -5,6 +5,8 @@ package AlphaTris;
  * Created by ivan on 11/06/2016.
  *
  */
+
+//implemeta una coppia stato-valore, necessaria per l'uso dell'API Stream
 class StateWrap implements Comparable<StateWrap>
 {
 

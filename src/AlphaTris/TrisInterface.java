@@ -16,7 +16,7 @@ class TrisInterface
         Scanner input = new Scanner(System.in);
         size = input.nextInt();
         serie = input.nextInt();
-        TrisState.init(serie, size);
+        TrisState.init(serie, size);//inizializza i membri statici dello stato
         game();
 
     }
@@ -30,17 +30,20 @@ class TrisInterface
         Scanner input = new Scanner(System.in);
         int x,y;
         Runtime runtime = Runtime.getRuntime();
+
         while (!state.isTerminal)
         {
             System.out.println("Inserire 2 numeri, la riga e la colonna della casella da segnare");
-            engine.refresh();
+            engine.refresh(); //prepara una nuova iterazione durrante l'attesa dell'input
             x = input.nextInt();
             y = input.nextInt();
-            state.state[x][y] = -1;
-            state.revalue();
+            state.state[x][y] = -1; //marca la casella selezionata dall'utente
+            state.revalue(); //assegna un valore al nuovo stato
+
             long time = System.currentTimeMillis();
-            state = engine.nextState(state);
+            state = engine.nextState(state); //calcolo mossa
             time = System.currentTimeMillis()- time;
+
             System.out.println();
             System.out.println("tempo elaborazione mossa: " + time + "ms");
             System.out.println("memoria totale allocata: " + (runtime.totalMemory()>>20) + "MB");
@@ -49,6 +52,7 @@ class TrisInterface
             System.out.println();
             System.out.println(state);
         }
+        //stampa esito
         if(state.value == 0)
             System.out.println("Pareggio!");
         else if(state.value > 0)
@@ -58,6 +62,7 @@ class TrisInterface
 
     }
 
+    //configura un engine in base alla dimensione della griglia
     private static Engine getEngine()
     {
         int maxElements;

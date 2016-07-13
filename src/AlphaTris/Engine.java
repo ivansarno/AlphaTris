@@ -11,25 +11,29 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class Engine
 {
-    private boolean termination;
+    private boolean termination; //segnala ai thread di terminare
     private final ConcurrentHashMap<TrisState, Double> explored;
     private final TrisPool pool;
     final int maxElements;
     final int maxDepth;
 
-    public Engine(int maxElements, int depth) {
+    public Engine(int maxElements, int depth)
+    {
         explored = new ConcurrentHashMap<>();
         this.maxElements = maxElements;
         this.maxDepth = depth;
-        int allocations = TrisState.size > 15 ? 100000 : 200000;
+
+        //prealloca dei nodi nella pool
+        int allocations = TrisState.size > 20 ? 100000 : 150000;
         pool = new TrisPool(allocations);
-        for (int i = 0; i < allocations; i++) {
+        for (int i = 0; i < allocations; i++)
+        {
             TrisState s = new TrisState();
             pool.all.add(s);
         }
     }
 
-
+    //calcola la prossima mossa
     public TrisState nextState(TrisState current)
     {
         if(current.isTerminal)
@@ -38,6 +42,7 @@ class Engine
 
         termination = false;
 
+        //genera i successori, chiama la routine di valutazione, poi scglie il massimo
         ArrayList<TrisState> successors = successorsMax(current);
         TrisState temp = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, maxDepth)))
                 .max(StateWrap::compareTo).get().state;
@@ -47,6 +52,7 @@ class Engine
         return current;
     }
 
+    //cancella la tabella dei nodi esplorati e rende disponibili tutti i nodi allocati nella pool
     public void refresh()
     {
         explored.clear();
@@ -62,14 +68,14 @@ class Engine
 
         if(state.isTerminal)
         {
-            explored.put(state, state.value);
+            explored.put(state, state.value); //aggiunge alla tabella nodi esplorati
             return state.value;
         }
 
         if(explored.containsKey(state))
         {
-            double value = explored.get(state);
-            pool.dispose(state);
+            double value = explored.get(state); //recupera il valore dalla tabella
+            pool.dispose(state); //il nodo non è più utile, lo rende disponibile nella pool
             return value;
         }
 
@@ -82,33 +88,21 @@ class Engine
 
 
         double current = Double.POSITIVE_INFINITY;
-        ArrayList<TrisState> successors = successorsMin(state);
-
+        ArrayList<TrisState> successors = successorsMin(state); //genera i successori
         {
-
             for (TrisState s: successors)
             {
-
                 current = Math.min(evalMax(s, alpha, beta, depth-1), current);
                 if(current <= alpha)
-                {
-
                     break;
-                }
-
                 beta = Math.min(current, beta);
-
 
                 if(beta == TrisState.minValue)
                     break;
-
             }
             explored.put(state, current);
             return current;
         }
-
-
-
     }
 
 
@@ -145,16 +139,13 @@ class Engine
         {
             for (TrisState s : successors)
             {
-
                 current = Math.max(evalMin(s, alpha, beta, depth-1), current);
                 if(current >= beta)
                     break;
                 alpha = Math.max(alpha, current);
 
-
                 if(alpha == TrisState.maxValue)
                     break;
-
             }
             explored.put(state, current);
             return current;
@@ -171,11 +162,14 @@ class Engine
 
         try
         {
+            //calcolo valore
             double val = evalMin(state, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, depth - 1);
+
+            //se ho trovato un cammino vincente blocco gli altri thread
             if (val == TrisState.maxValue)
                 termination = true;
             return val;
-        } catch (Interruption e)
+        } catch (Interruption e) //se sono stato interrotto restituisco il valore minimo
         {
             return Double.NEGATIVE_INFINITY;
         }
