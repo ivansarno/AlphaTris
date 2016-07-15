@@ -65,25 +65,9 @@ class TrisInterface
     //configura un engine in base alla dimensione della griglia
     private static Engine getEngine()
     {
-        return new Engine(10, 5);/*
-        int maxElements;
-        int depth;
-        if(TrisState.size <= 10)
-        {
-            maxElements = 25;
-            depth = 8;
-        }
-        else if(TrisState.size > 10 && TrisState.size <= 25)
-        {
-            maxElements = 30;
-            depth = 5;
-        }
-        else
-        {
-            maxElements = 50;
-            depth = 3;
-        }
-        return new Engine(maxElements, depth);*/
+        if(TrisState.size > 10)
+            return new Engine(15, 4);
+        return new Engine(10, 6);
     }
 
 

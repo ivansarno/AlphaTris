@@ -180,8 +180,8 @@ class Engine
 
     private ArrayList<TrisState> successorsMin(TrisState current)
     {
-        /*La coda di priorità usa il comparatore per Min perchè voglio un ordine invertito
-        l'elemento peggiore in testa alla coda, in modo da poterlo confrontare e sostituire         */
+        //La coda di priorità usa il comparatore per Min perchè voglio un ordine invertito
+        //l'elemento peggiore in testa alla coda, in modo da poterlo confrontare e sostituire
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMax);
         TrisState temp = pool.getCopy(current);
         for(int i = 0; i< TrisState.size; i++)
@@ -258,4 +258,54 @@ class Engine
         successors.sort(TrisState::comparatorMax);
         return successors;
     }
+
+
+/*
+    private ArrayList<TrisState> successorsMax(TrisState current)
+    {
+        ArrayList<TrisState> successors = new ArrayList<>();
+        TrisState temp = pool.getCopy(current);
+
+        for(int i = 0; i< TrisState.size; i++)
+            for (int j = 0; j < TrisState.size; j++)
+            {
+                if (current.state[i][j] == 0)
+                {
+                    temp.state[i][j] = 1;//la marco per il programma
+                    temp.revalue();
+                    successors.add(temp);
+                    temp = pool.getCopy(current);
+
+                }
+            }
+
+        successors.sort(TrisState::comparatorMax);
+        while (successors.size() > maxElements)
+            successors.remove(successors.size()-1);
+        return successors;
+    }
+
+    private ArrayList<TrisState> successorsMin(TrisState current)
+    {
+        ArrayList<TrisState> successors = new ArrayList<>();
+        TrisState temp = pool.getCopy(current);
+
+        for(int i = 0; i< TrisState.size; i++)
+            for (int j = 0; j < TrisState.size; j++)
+            {
+                if (current.state[i][j] == 0)
+                {
+                    temp.state[i][j] = -1;//la marco per il programma
+                    temp.revalue();
+                    successors.add(temp);
+                    temp = pool.getCopy(current);
+
+                }
+            }
+
+        successors.sort(TrisState::comparatorMax);
+        while (successors.size() > maxElements)
+            successors.remove(successors.size()-1);
+        return successors;
+    }*/
 }

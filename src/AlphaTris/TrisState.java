@@ -27,12 +27,12 @@ class TrisState
     TrisState(TrisState source)
     {
         this.state = arrayCopy(source.state);
-        isTerminal = terminationTest();//setta anche value
-        if(isTerminal)
-            heuristicValue = value;
-        else heuristicValue = heuristicEvaluation();
+        isTerminal = source.isTerminal;
+        value = source.value;
+        heuristicValue = source.heuristicValue;
     }
 
+    //inizializza i campi statici
     static void init(int serie, int size)
     {
         TrisState.serie = serie;
@@ -94,7 +94,7 @@ class TrisState
 
 
 
-    //setta anche value
+    //verifica se uno stato è terminale e setta anche value
     private boolean terminationTest()
     {
         int i, j;
@@ -126,7 +126,7 @@ class TrisState
     }
 
 
-
+    //cerca sequenze vincenti/perdenti
     private boolean checkSequence(int i, int j)
     {
         if(i+serie-1 < size)
@@ -199,13 +199,15 @@ class TrisState
     }
 
 
-    private static double weight(int val, int length)
+    //assegna  una sequenza il suo valore effettvo
+    private static double weight(int sequenceValue, int length)
     {
-        if(val>0)
-            return Math.pow(val, 2);
-        return -Math.pow(-val, 3.6)*length/size;
+        if(sequenceValue>0)
+            return Math.pow(sequenceValue, 2)*length;
+        return -Math.pow(-sequenceValue, 3.6)*length;
     }
 
+    //calcola la valutazione euristica sulle colonne
     private double columnsValue()
     {
         int current, acc, zeroPrima, zeroDopo;
@@ -240,6 +242,8 @@ class TrisState
                 if (current == state[i][j])
                 {
                     acc += current;
+                    zeroPrima += zeroDopo;
+                    zeroDopo = 0;
                     continue;
                 }
                 if (current != state[i][j])
@@ -260,6 +264,7 @@ class TrisState
         return val;
     }
 
+    //calcola la valutazione euristica sulle righe
     private double rowsValue()
     {
         int current, acc, zeroPrima, zeroDopo;
@@ -294,6 +299,8 @@ class TrisState
                 if (current == state[i][j])
                 {
                     acc += current;
+                    zeroPrima += zeroDopo;
+                    zeroDopo = 0;
                     continue;
                 }
                 if (current != state[i][j])
@@ -314,6 +321,7 @@ class TrisState
         return val;
     }
 
+    //calcola la valutazione euristica sulle diagonali sinistre
     private double diagonalsSXValue()
     {
         int current, acc, zeroPrima, zeroDopo;
@@ -345,6 +353,8 @@ class TrisState
                 if (0 == state[h][j])
                 {
                     zeroDopo++;
+                    zeroPrima += zeroDopo;
+                    zeroDopo = 0;
                     continue;
                 }
                 if (current == state[h][j])
@@ -398,6 +408,8 @@ class TrisState
                 if (current == state[h][j])
                 {
                     acc += current;
+                    zeroPrima += zeroDopo;
+                    zeroDopo = 0;
                     continue;
                 }
                 if (current != state[h][j])
@@ -419,6 +431,7 @@ class TrisState
         return val;
     }
 
+    //calcola la valutazione euristica sulle diagonali destre
     private double diagonalsDXValue()
     {
         int current, acc, zeroPrima, zeroDopo;
@@ -455,6 +468,8 @@ class TrisState
                 if (current == state[h][j])
                 {
                     acc += current;
+                    zeroPrima += zeroDopo;
+                    zeroDopo = 0;
                     continue;
                 }
                 if (current != state[h][j])
@@ -502,6 +517,8 @@ class TrisState
                 if (current == state[h][j])
                 {
                     acc += current;
+                    zeroPrima += zeroDopo;
+                    zeroDopo = 0;
                     continue;
                 }
                 if (current != state[h][j])
@@ -538,6 +555,8 @@ class TrisState
         for(int i = 0; i < source.length; i++)
             System.arraycopy(source[i], 0, destination[i], 0, source.length);
     }
+
+    //riporta uno stato alla configurazione di default
     void reset()
     {
         setZero(state);
@@ -552,6 +571,7 @@ class TrisState
             Arrays.fill(anA, (byte) 0);
     }
 
+    //copia la matrice e i valori di un altro stato
     void reset(TrisState source)
     {
         arrayOverwrite(this.state, source.state);
@@ -560,6 +580,7 @@ class TrisState
         heuristicValue = source.heuristicValue;
     }
 
+    //ricalcola i valori dello stato
     void revalue()
     {
         value = 0.0;
@@ -569,6 +590,7 @@ class TrisState
         else heuristicValue = heuristicEvaluation();
     }
 
+    //setta i valori di uno stato con quelli di un altro
     void revalue(TrisState source)
     {
         value = source.value;
