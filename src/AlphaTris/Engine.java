@@ -1,14 +1,25 @@
+/**
+ AlphaTris
+
+ Copyright 2016 Ivan Sarno
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ */
 package AlphaTris;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-/**
- * Created by ivan on 20/06/2016.
- *
- */
 class Engine
 {
     private boolean termination; //segnala ai thread di terminare
@@ -17,7 +28,7 @@ class Engine
     final int maxElements;
     final int maxDepth;
 
-    public Engine(int maxElements, int depth)
+    Engine(int maxElements, int depth)
     {
         explored = new ConcurrentHashMap<>();
         this.maxElements = maxElements;
@@ -34,7 +45,7 @@ class Engine
     }
 
     //calcola la prossima mossa
-    public TrisState nextState(TrisState current)
+    TrisState nextState(TrisState current)
     {
         if(current.isTerminal)
             return current;
@@ -53,7 +64,7 @@ class Engine
     }
 
     //cancella la tabella dei nodi esplorati e rende disponibili tutti i nodi allocati nella pool
-    public void refresh()
+    void refresh()
     {
         explored.clear();
         pool.refresh();
@@ -258,54 +269,4 @@ class Engine
         successors.sort(TrisState::comparatorMax);
         return successors;
     }
-
-
-/*
-    private ArrayList<TrisState> successorsMax(TrisState current)
-    {
-        ArrayList<TrisState> successors = new ArrayList<>();
-        TrisState temp = pool.getCopy(current);
-
-        for(int i = 0; i< TrisState.size; i++)
-            for (int j = 0; j < TrisState.size; j++)
-            {
-                if (current.state[i][j] == 0)
-                {
-                    temp.state[i][j] = 1;//la marco per il programma
-                    temp.revalue();
-                    successors.add(temp);
-                    temp = pool.getCopy(current);
-
-                }
-            }
-
-        successors.sort(TrisState::comparatorMax);
-        while (successors.size() > maxElements)
-            successors.remove(successors.size()-1);
-        return successors;
-    }
-
-    private ArrayList<TrisState> successorsMin(TrisState current)
-    {
-        ArrayList<TrisState> successors = new ArrayList<>();
-        TrisState temp = pool.getCopy(current);
-
-        for(int i = 0; i< TrisState.size; i++)
-            for (int j = 0; j < TrisState.size; j++)
-            {
-                if (current.state[i][j] == 0)
-                {
-                    temp.state[i][j] = -1;//la marco per il programma
-                    temp.revalue();
-                    successors.add(temp);
-                    temp = pool.getCopy(current);
-
-                }
-            }
-
-        successors.sort(TrisState::comparatorMax);
-        while (successors.size() > maxElements)
-            successors.remove(successors.size()-1);
-        return successors;
-    }*/
 }
