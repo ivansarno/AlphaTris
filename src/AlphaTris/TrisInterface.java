@@ -27,7 +27,7 @@ class TrisInterface
         Scanner input = new Scanner(System.in);
         size = input.nextInt();
         serie = input.nextInt();
-        TrisState.init(serie, size);//inizializza i membri statici dello stato
+        TrisState.init(serie, size);//initialize static members of the state
         game();
 
     }
@@ -45,35 +45,35 @@ class TrisInterface
         while (!state.isTerminal)
         {
             System.out.println("Inserire 2 numeri, la riga e la colonna della casella da segnare");
-            engine.refresh(); //prepara una nuova iterazione durrante l'attesa dell'input
+            engine.refresh(); //prepares a new iteration while waiting for input
             x = input.nextInt();
             y = input.nextInt();
-            state.state[x][y] = -1; //marca la casella selezionata dall'utente
-            state.revalue(); //assegna un valore al nuovo stato
+            state.state[x][y] = -1; //sign user moves
+            state.revalue(); //assign the new value
 
             long time = System.currentTimeMillis();
-            state = engine.nextState(state); //calcolo mossa
+            state = engine.nextState(state); //compute move
             time = System.currentTimeMillis()- time;
 
             System.out.println();
-            System.out.println("tempo elaborazione mossa: " + time + "ms");
-            System.out.println("memoria totale allocata: " + (runtime.totalMemory()>>20) + "MB");
-            System.out.println("profondità esplorazione: " + engine.maxDepth);
-            System.out.println("Successori esplorati per nodo: " + engine.maxElements);
+            System.out.println("time to move: " + time + "ms");
+            System.out.println("allocated memory: " + (runtime.totalMemory()>>20) + "MB");
+            System.out.println("depth exploration: " + engine.maxDepth);
+            System.out.println("successors explored per state: " + engine.maxElements);
             System.out.println();
             System.out.println(state);
         }
         //stampa esito
         if(state.value == 0)
-            System.out.println("Pareggio!");
+            System.out.println("Draw!");
         else if(state.value > 0)
-            System.out.println("Hai Perso :(");
+            System.out.println("You Loose :(");
         else if(state.value < 0)
-            System.out.println("Hai Vinto :)");
+            System.out.println("You Win :)");
 
     }
 
-    //configura un engine in base alla dimensione della griglia
+    //setup the engine 
     private static Engine getEngine()
     {
         if(TrisState.size > 10)

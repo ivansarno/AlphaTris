@@ -16,7 +16,7 @@
  */
 package AlphaTris;
 
-//implemeta una coppia stato-valore, necessaria per l'uso dell'API Stream
+//Tuple state * value to use with API Stream
 class StateWrap implements Comparable<StateWrap>
 {
 

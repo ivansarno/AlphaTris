@@ -20,10 +20,11 @@ package AlphaTris;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+//Object pool for TrisState
 class TrisPool
 {
-    private final Deque<TrisState> pool; //lista di tutti i nodi disponibili
-    final List<TrisState> all;//lista di tutti i nodi allocati
+    private final Deque<TrisState> pool; //avaiable TrisState
+    final List<TrisState> all;//all TrisState allocated
 
 
     TrisPool(int allocation)
@@ -61,14 +62,14 @@ class TrisPool
         return temp;
     }
 
-    //rende disponibili tutti i nodi allocati
+    //make all state avaiable
     void refresh()
     {
         pool.clear();
         pool.addAll(all);
     }
 
-    //rende disponibile un nodo
+    //make one state avaiable
     void dispose(TrisState s)
     {
         pool.push(s);

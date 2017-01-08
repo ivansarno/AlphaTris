@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 class Engine
 {
-    private boolean termination; //segnala ai thread di terminare
+    private boolean termination; //threads termination flag
     private final ConcurrentHashMap<TrisState, Double> explored;
     private final TrisPool pool;
     final int maxElements;
@@ -34,7 +34,7 @@ class Engine
         this.maxElements = maxElements;
         this.maxDepth = depth;
 
-        //prealloca dei nodi nella pool
+        //preallocates of nodes in the pool
         int allocations = TrisState.size > 20 ? 100000 : 150000;
         pool = new TrisPool(allocations);
         for (int i = 0; i < allocations; i++)
@@ -44,7 +44,7 @@ class Engine
         }
     }
 
-    //calcola la prossima mossa
+    //compute next move
     TrisState nextState(TrisState current)
     {
         if(current.isTerminal)
@@ -53,7 +53,7 @@ class Engine
 
         termination = false;
 
-        //genera i successori, chiama la routine di valutazione, poi scglie il massimo
+        //generates successors, calls the rating procedure, then chooses the maximum
         ArrayList<TrisState> successors = successorsMax(current);
         TrisState temp = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, maxDepth)))
                 .max(StateWrap::compareTo).get().state;
@@ -63,7 +63,7 @@ class Engine
         return current;
     }
 
-    //cancella la tabella dei nodi esplorati e rende disponibili tutti i nodi allocati nella pool
+    //clears the table of explored states and makes all states available in the allocated pool
     void refresh()
     {
         explored.clear();
@@ -79,14 +79,14 @@ class Engine
 
         if(state.isTerminal)
         {
-            explored.put(state, state.value); //aggiunge alla tabella nodi esplorati
+            explored.put(state, state.value); 
             return state.value;
         }
 
         if(explored.containsKey(state))
         {
-            double value = explored.get(state); //recupera il valore dalla tabella
-            pool.dispose(state); //il nodo non è più utile, lo rende disponibile nella pool
+            double value = explored.get(state);
+            pool.dispose(state); //this state will not be used more, add it at the pool
             return value;
         }
 
@@ -99,7 +99,7 @@ class Engine
 
 
         double current = Double.POSITIVE_INFINITY;
-        ArrayList<TrisState> successors = successorsMin(state); //genera i successori
+        ArrayList<TrisState> successors = successorsMin(state); //generates successors 
         {
             for (TrisState s: successors)
             {
@@ -173,14 +173,14 @@ class Engine
 
         try
         {
-            //calcolo valore
+            //compute value of the state
             double val = evalMin(state, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, depth - 1);
 
-            //se ho trovato un cammino vincente blocco gli altri thread
+            //this thread found goal state, interrumpts other threads
             if (val == TrisState.maxValue)
                 termination = true;
             return val;
-        } catch (Interruption e) //se sono stato interrotto restituisco il valore minimo
+        } catch (Interruption e) //other thread foud goal state, return minimum value
         {
             return Double.NEGATIVE_INFINITY;
         }
@@ -191,37 +191,37 @@ class Engine
 
     private ArrayList<TrisState> successorsMin(TrisState current)
     {
-        //La coda di priorità usa il comparatore per Min perchè voglio un ordine invertito
-        //l'elemento peggiore in testa alla coda, in modo da poterlo confrontare e sostituire
+        //The priority queue uses the comparatorfor Max because I want a reversed order
+        //the worst element in head of the queue, to compare and replace
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMax);
         TrisState temp = pool.getCopy(current);
         for(int i = 0; i< TrisState.size; i++)
             for (int j = 0; j < TrisState.size; j++)
             {
-                if (current.state[i][j] == 0)//cerco una cella vuota
+                if (current.state[i][j] == 0)//found a void cell
                 {
-                    temp.state[i][j] = -1;//la marco per l'avversario
-                    temp.revalue(); //assegno il nuovo valore
+                    temp.state[i][j] = -1;//sign the move for the user
+                    temp.revalue(); //compute the nuw value
                     if(queue.size() < maxElements)
                     {
-                        //non ho generato il massimo numero di successori
-                        //aggiungo quello nuovo alla coda
+                        //not exceeded the number of successors
+                        //add this to the queue
                         queue.add(temp);
                         temp = pool.getCopy(current);
                         continue;
                     }
                     if(TrisState.comparatorMin(temp, queue.peek()) == 1)
                     {
-                        //il successore generato è peggiore di tutti quelli nella coda
-                        //lo resetto
+                        //successor is worse than those in the queue
+                        //reset it
                         temp.state[i][j] = 0;
                         temp.revalue(current);
                     }
                     else
                     {
-                        //aggiungo il successore alla coda
+                        //add this to the queue
                         queue.add(temp);
-                        //estraggo il peggiore e lo resetto
+                        //estract the worst and reset it
                         temp = queue.poll();
                         temp.reset(current);
                     }
@@ -229,7 +229,7 @@ class Engine
                 }
             }
         ArrayList<TrisState> successors = new ArrayList<>(queue);
-        successors.sort(TrisState::comparatorMin); //ordinamento dei successori
+        successors.sort(TrisState::comparatorMin); //orders the successors
         return successors;
     }
 
@@ -243,7 +243,7 @@ class Engine
             {
                 if (current.state[i][j] == 0)
                 {
-                    temp.state[i][j] = 1;//la marco per il programma
+                    temp.state[i][j] = 1;//sign the move for the program
                     temp.revalue();
                     if(queue.size() < maxElements)
                     {
