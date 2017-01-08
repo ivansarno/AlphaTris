@@ -53,7 +53,7 @@ class Engine
 
         termination = false;
 
-        //genera i successori, chiama la routine di valutazione, poi scglie il massimo
+        //genera i successori, chiama la routine di valutazione, poi sceglie il massimo
         ArrayList<TrisState> successors = successorsMax(current);
         TrisState temp = successors.parallelStream().map(x -> new StateWrap(x, parallelRoutine(x, maxDepth)))
                 .max(StateWrap::compareTo).get().state;
