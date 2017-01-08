@@ -45,7 +45,7 @@ class TrisInterface
         while (!state.isTerminal)
         {
             System.out.println("Inserire 2 numeri, la riga e la colonna della casella da segnare");
-            engine.refresh(); //prepara una nuova iterazione durrante l'attesa dell'input
+            engine.refresh(); //prepara una nuova iterazione durante l'attesa dell'input
             x = input.nextInt();
             y = input.nextInt();
             state.state[x][y] = -1; //marca la casella selezionata dall'utente
