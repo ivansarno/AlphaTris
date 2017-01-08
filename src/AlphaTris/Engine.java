@@ -191,7 +191,7 @@ class Engine
 
     private ArrayList<TrisState> successorsMin(TrisState current)
     {
-        //La coda di priorità usa il comparatore per Min perchè voglio un ordine invertito
+        //La coda di priorità usa il comparatore per Max perchè voglio un ordine invertito
         //l'elemento peggiore in testa alla coda, in modo da poterlo confrontare e sostituire
         PriorityQueue<TrisState> queue = new PriorityQueue<>(maxElements, TrisState::comparatorMax);
         TrisState temp = pool.getCopy(current);
