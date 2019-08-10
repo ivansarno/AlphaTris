@@ -1,4 +1,5 @@
-#AlphaTris
+AlphaTris
+========= 
 
 This is the project for my Esperienze di Programmazione (Programming Experiences) exam at the University of Pisa.  
 
